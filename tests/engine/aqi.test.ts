@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import fc from 'fast-check';
-import { bandFor, computeAqi, subIndex } from '../../src/engine/aqi';
+import { bandFor, computeAqi, concentrationFor, subIndex } from '../../src/engine/aqi';
 import { AQI_BANDS, BREAKPOINTS, type Pollutant } from '../../src/engine/data/naqi';
 
 describe('subIndex', () => {
@@ -85,5 +85,32 @@ describe('computeAqi', () => {
   it('returns null when nothing is usable', () => {
     expect(computeAqi([])).toBeNull();
     expect(computeAqi([{ pollutant: 'PM10', value: -5 }])).toBeNull();
+  });
+});
+
+describe('concentrationFor', () => {
+  it.each([
+    ['PM2.5', 0, 0],
+    ['PM2.5', 50, 30],
+    ['PM2.5', 75, 45.2],
+    ['PM10', 200, 250],
+    ['PM2.5', 500, 380],
+    ['PM2.5', 650, 380],
+  ] as const)('%s index %d is about %d', (pollutant, index, expected) => {
+    expect(concentrationFor(pollutant, index)).toBe(expected);
+  });
+
+  it('round-trips with subIndex', () => {
+    fc.assert(
+      fc.property(fc.integer({ min: 0, max: 500 }), (index) => {
+        const c = concentrationFor('PM10', index) ?? -1;
+        return Math.abs((subIndex('PM10', c) ?? -1) - index) <= 1;
+      }),
+    );
+  });
+
+  it('rejects invalid indices', () => {
+    expect(concentrationFor('NO2', -3)).toBeNull();
+    expect(concentrationFor('NO2', Number.NaN)).toBeNull();
   });
 });

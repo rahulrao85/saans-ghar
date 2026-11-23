@@ -3,6 +3,7 @@ import { at } from './util';
 
 /** Highest value the NAQI scale reports. */
 const AQI_MAX = 500;
+const TENTHS = 10;
 /** CPCB needs at least this many pollutants for an overall index. */
 const MIN_POLLUTANTS = 3;
 /** One of these must be present for an overall index. */
@@ -40,6 +41,25 @@ export function subIndex(pollutant: Pollutant, value: number): number | null {
   const clamped = Math.min(Math.max(value, low), high);
   const scaled = ((band.high - band.low) / (high - low)) * (clamped - low) + band.low;
   return Math.min(AQI_MAX, Math.round(scaled));
+}
+
+/**
+ * Concentration that gives a sub-index: the inverse of `subIndex`.
+ * Feeds that publish sub-indices (CPCB's live feed) are turned back into
+ * µg/m³ so the dose maths can use them.
+ * @returns concentration rounded to one decimal, or null for an invalid index.
+ */
+export function concentrationFor(pollutant: Pollutant, index: number): number | null {
+  if (!Number.isFinite(index) || index < 0) return null;
+  const capped = Math.min(index, AQI_MAX);
+  const i = Math.max(
+    0,
+    AQI_BANDS.findIndex((b) => capped <= b.high),
+  );
+  const band = at(AQI_BANDS, i);
+  const [low, high] = at(BREAKPOINTS[pollutant], i);
+  const share = (Math.max(capped, band.low) - band.low) / (band.high - band.low);
+  return Math.round((low + share * (high - low)) * TENTHS) / TENTHS;
 }
 
 /** PM2.5 sub-index, or 0 when the value is unusable. */
