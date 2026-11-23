@@ -1,4 +1,5 @@
 import { AQI_BANDS, BREAKPOINTS, type AqiBand, type Pollutant } from './data/naqi';
+import { at } from './util';
 
 /** Highest value the NAQI scale reports. */
 const AQI_MAX = 500;
@@ -32,21 +33,23 @@ export interface AqiResult {
 export function subIndex(pollutant: Pollutant, value: number): number | null {
   if (!Number.isFinite(value) || value < 0) return null;
   const ranges = BREAKPOINTS[pollutant];
-  for (const [i, [low, high]] of ranges.entries()) {
-    const nextLow = ranges[i + 1]?.[0] ?? Number.POSITIVE_INFINITY;
-    if (value < nextLow) {
-      const band = bandAt(i);
-      const clamped = Math.min(Math.max(value, low), high);
-      const scaled = ((band.high - band.low) / (high - low)) * (clamped - low) + band.low;
-      return Math.min(AQI_MAX, Math.round(scaled));
-    }
-  }
-  return AQI_MAX;
+  let i = 0;
+  while (i < ranges.length - 1 && value >= at(ranges, i + 1)[0]) i++;
+  const [low, high] = at(ranges, i);
+  const band = at(AQI_BANDS, i);
+  const clamped = Math.min(Math.max(value, low), high);
+  const scaled = ((band.high - band.low) / (high - low)) * (clamped - low) + band.low;
+  return Math.min(AQI_MAX, Math.round(scaled));
+}
+
+/** PM2.5 sub-index, or 0 when the value is unusable. */
+export function pm25Index(value: number): number {
+  return subIndex('PM2.5', value) ?? 0;
 }
 
 /** The NAQI band for an index value (values above 500 map to Severe). */
 export function bandFor(aqi: number): AqiBand {
-  return AQI_BANDS.find((b) => aqi <= b.high) ?? bandAt(AQI_BANDS.length - 1);
+  return AQI_BANDS.find((b) => aqi <= b.high) ?? at(AQI_BANDS, AQI_BANDS.length - 1);
 }
 
 /**
@@ -73,10 +76,4 @@ export function computeAqi(readings: readonly Reading[]): AqiResult | null {
     subIndices,
     complete,
   };
-}
-
-function bandAt(i: number): AqiBand {
-  const band = AQI_BANDS[i];
-  if (band === undefined) throw new RangeError(`No AQI band at ${i}`);
-  return band;
 }
