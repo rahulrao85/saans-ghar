@@ -13,6 +13,7 @@
     "dev:server": "tsx watch --env-file-if-exists=.env server/main.ts",
     "build": "vite build && node scripts/build-server.mjs && node scripts/precompress.mjs",
     "start": "node dist/server.mjs",
+    "start:local": "node --env-file-if-exists=.env dist/server.mjs",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "lint": "eslint . --max-warnings=0",
     "lint:unused": "knip",
