@@ -95,7 +95,7 @@ Without `DATA_GOV_API_KEY` the app uses the Open-Meteo model and says so. Withou
 - **Model:** Gemini (`gemini-3.5-flash-lite` on the free AI Studio tier, set by `GEMINI_MODEL`) through `@google/genai` ([server/ai/model.ts](server/ai/model.ts)).
 - **Four tasks:** explain the plan; answer questions with **function calling** over `air_now`, `forecast_window`, `member_plan` and `inhaled_dose`, each running our own code ([server/ai/tools.ts](server/ai/tools.ts)); word the society notice around a decision code already made; read a PM2.5 number from a photo with **structured JSON output** validated by zod, which the user confirms.
 - **Prompts:** fixed system prompts ([server/ai/prompts.ts](server/ai/prompts.ts)) plus a user message of code-computed facts, with clock times added so the model never converts hours.
-- **Guardrails:** the number guard ([server/ai/guard.ts](server/ai/guard.ts)) rejects a reply with any digit-written number not in the facts or tool results (Devanagari digits included) or any number spelled as a word in English, Hindi or Marathi. Names and labels are passed as JSON data, never as instructions. Rate limit 12 AI calls a minute per client; 25-second timeout.
+- **Guardrails:** the number guard ([server/ai/guard.ts](server/ai/guard.ts)) rejects a reply with any digit-written number not in the facts or tool results (Devanagari digits included) or any number spelled as a word in English, Hindi or Marathi. Names and labels are passed as JSON data, never as instructions. Rate limit 12 AI calls a minute per client; each Gemini try times out after 8 s and is retried up to three tries in all, then the rules answer is shown.
 - **Fallback:** a rejected, failed or slow reply is replaced by the built-in rules text, labelled "Built-in explanation". The app works fully with no key.
 - **Building it:** the tools, prompt evolution and who did what are in [docs/build-log.md](docs/build-log.md).
 
@@ -123,7 +123,7 @@ Without `DATA_GOV_API_KEY` the app uses the Open-Meteo model and says so. Withou
 
 ## Testing
 
-- **397 Vitest tests in 50 files**, with a **100% gate on statements, branches, functions and lines** (as of 24-Nov-2026; `npm run coverage` prints the live figures).
+- **399 Vitest tests in 50 files**, with a **100% gate on statements, branches, functions and lines** (as of 24-Nov-2026; `npm run coverage` prints the live figures).
 - One test file per engine module, plus server adapters with fake fetch, the AI layer with a fake model (guard, tool loop, fallbacks), state hooks and every component with Testing Library.
 - **16 Playwright tests** on desktop Chrome and a Pixel 7 against the production build with no API keys, including axe in both themes and no sideways scroll from 228 px to 768 px.
 - No test touches the network. Details: [TESTING.md](TESTING.md).

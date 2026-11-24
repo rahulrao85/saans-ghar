@@ -12,7 +12,7 @@ Fast on Indian mobile data, light on the free upstream APIs, and cheap to run (â
 | Rounded locations             | Points are rounded to about 1 km before the forecast lookup, so nearby users share cache entries (and privacy improves)            | `src/engine/geoTypes.ts` (`coarse`)         |
 | Forecast cache                | Open-Meteo forecast and weather are fetched together in parallel and cached for 1 hour per rounded point                           | `server/air.ts`                             |
 | HTTP caching                  | Air and place lookups send `Cache-Control: private, max-age=300`; AI replies `no-store`; hashed assets `immutable` for a year      | `server/app.ts`, `server/main.ts`           |
-| Timeouts                      | Upstream fetches time out (70 s for data.gov.in, 25 s for Gemini) and fall back                                                    | `server/fetchJson.ts`, `server/ai/model.ts` |
+| Timeouts                      | Upstream fetches time out (70 s for data.gov.in; Gemini 8 s per try, three tries) and fall back                                    | `server/fetchJson.ts`, `server/ai/model.ts` |
 | Cache warm-up                 | The station cache is filled at start-up, so the first visitor does not wait                                                        | `server/main.ts`                            |
 | Refresh only when useful      | The browser refreshes the report every 15 minutes and when the tab becomes visible again, keeping the old plan on screen meanwhile | `src/state/hooks.ts`                        |
 

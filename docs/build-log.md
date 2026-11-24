@@ -20,8 +20,9 @@
 3. **data.gov.in is flaky.** It returned 502 for a while during development, so the station cache serves the last good copy and says so.
 4. **The AI never computes.** Every figure comes from the engine; the AI words it. A number guard checks the reply against the facts, because a fluent wrong number is the worst failure for a health tool.
 5. **Free-tier model choice.** Larger Gemini Flash models timed out (over 25 s) on the free tier; `gemini-3.5-flash-lite` answered in 2–4 s with correct tool calls, so it is the default, configurable by `GEMINI_MODEL`.
-6. **Works with no key.** Every text feature has a rules fallback, so an outage or an exhausted free quota never breaks the app.
-7. **Masks are never credited.** Fit varies too much to promise a number, so the plan advises N95s for trips that can't be skipped but counts no saving.
+6. **Retry, then fall back.** On 24-Nov-2026 the free tier returned "high demand" 503s and hung on about half the calls, while healthy calls took 1–2 s. One 25 s timeout became three 8 s tries with a short backoff.
+7. **Works with no key.** Every text feature has a rules fallback, so an outage or an exhausted free quota never breaks the app.
+8. **Masks are never credited.** Fit varies too much to promise a number, so the plan advises N95s for trips that can't be skipped but counts no saving.
 
 ## Prompt evolution
 

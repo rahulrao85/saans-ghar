@@ -10,4 +10,4 @@
 
 `npm run coverage` enforces the coverage thresholds in `vitest.config.ts`. No test touches the network: every adapter takes an injected `fetchJson`, and e2e serves air data from `e2e/fixtures.ts`.
 
-As of 24-Nov-2026: **397 Vitest tests in 50 files**, **100% statements, branches, functions and lines**, and **16 Playwright tests** (8 scenarios × desktop and Pixel 7). `npm run coverage` and `npm run e2e` print the live figures.
+As of 24-Nov-2026: **399 Vitest tests in 50 files**, **100% statements, branches, functions and lines**, and **16 Playwright tests** (8 scenarios × desktop and Pixel 7). `npm run coverage` and `npm run e2e` print the live figures.

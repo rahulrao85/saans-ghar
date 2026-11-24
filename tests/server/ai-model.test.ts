@@ -11,7 +11,7 @@ vi.mock('@google/genai', () => ({
   },
 }));
 
-import { geminiModel } from '../../server/ai/model';
+import { geminiModel, withRetry } from '../../server/ai/model';
 
 interface Call {
   model: string;
@@ -97,5 +97,24 @@ describe('geminiModel', () => {
     h.generateContent.mockResolvedValueOnce({ candidates: [] });
     const b = await geminiModel('k', 'm').generate({ system: 's', contents });
     expect(b).toEqual({ text: '', calls: [], content: undefined });
+  });
+
+  it('retries a failed call and gives each try its own timeout signal', async () => {
+    h.generateContent.mockRejectedValueOnce(new Error('503 high demand'));
+    h.generateContent.mockResolvedValueOnce({
+      candidates: [{ content: { parts: [{ text: 'ok' }] } }],
+    });
+    const out = await geminiModel('k', 'm').generate({ system: 's', contents });
+    expect(out.text).toBe('ok');
+    expect(h.generateContent).toHaveBeenCalledTimes(2);
+    expect(lastCall().config.abortSignal).toBeInstanceOf(AbortSignal);
+  });
+});
+
+describe('withRetry', () => {
+  it('gives up after three tries and rethrows the last error', async () => {
+    const call = vi.fn().mockRejectedValue(new Error('down'));
+    await expect(withRetry(call)).rejects.toThrow('down');
+    expect(call).toHaveBeenCalledTimes(3);
   });
 });
