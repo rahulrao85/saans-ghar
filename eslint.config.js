@@ -3,6 +3,7 @@ import globals from 'globals';
 import tseslint from 'typescript-eslint';
 import jsxA11y from 'eslint-plugin-jsx-a11y';
 import reactHooks from 'eslint-plugin-react-hooks';
+import jsdoc from 'eslint-plugin-jsdoc';
 
 export default tseslint.config(
   {
@@ -57,6 +58,29 @@ export default tseslint.config(
     files: ['src/**/*.tsx'],
     rules: {
       'max-lines-per-function': ['error', { max: 90, skipBlankLines: true, skipComments: true }],
+    },
+  },
+  {
+    // Every exported function, class, type and constant carries a doc comment.
+    files: ['src/**/*.{ts,tsx}', 'server/**/*.ts'],
+    plugins: { jsdoc },
+    rules: {
+      'jsdoc/require-jsdoc': [
+        'error',
+        {
+          publicOnly: true,
+          require: {
+            FunctionDeclaration: true,
+            ClassDeclaration: true,
+            ArrowFunctionExpression: true,
+          },
+          contexts: [
+            'TSInterfaceDeclaration',
+            'TSTypeAliasDeclaration',
+            'ExportNamedDeclaration > VariableDeclaration',
+          ],
+        },
+      ],
     },
   },
   {
