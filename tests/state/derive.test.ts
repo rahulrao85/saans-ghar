@@ -31,8 +31,8 @@ describe('derive', () => {
 
   it('moves a passed routine to tomorrow', () => {
     const h = household();
-    const [aai] = h.members;
-    const closed = { ...aai!, routines: [{ ...aai!.routines[0]!, latestHour: 20 }] };
+    const [aaji] = h.members;
+    const closed = { ...aaji!, routines: [{ ...aaji!.routines[0]!, latestHour: 20 }] };
     const d = derive({ ...h, members: [closed] }, airReport(), at(IST_LATE));
     expect(d.nowHour).toBe(22);
     expect(d.advice[0]?.bestHour).toBeGreaterThanOrEqual(24);
@@ -63,7 +63,7 @@ describe('addToLedger', () => {
   });
 
   it('keeps other days', () => {
-    const old = [{ date: '2026-11-20', memberId: 'aai', saved: 5 }];
+    const old = [{ date: '2026-11-20', memberId: 'aaji', saved: 5 }];
     expect(addToLedger(old, [], at(IST_MIDNIGHT))).toEqual(old);
   });
 });

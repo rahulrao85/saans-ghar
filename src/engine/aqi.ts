@@ -1,4 +1,4 @@
-import { AQI_BANDS, BREAKPOINTS, type AqiBand, type Pollutant } from './data/naqi';
+import { AQI_BANDS, BREAKPOINTS, POLLUTANTS, type AqiBand, type Pollutant } from './data/naqi';
 import { at } from './util';
 
 /** Highest value the NAQI scale reports. */
@@ -86,7 +86,7 @@ export function computeAqi(readings: readonly Reading[]): AqiResult | null {
     if (best === null || index > best.index) best = { pollutant: r.pollutant, index };
   }
   if (best === null) return null;
-  const present = Object.keys(subIndices) as Pollutant[];
+  const present = POLLUTANTS.filter((p) => subIndices[p] !== undefined);
   const complete =
     present.length >= MIN_POLLUTANTS && present.some((p) => PARTICULATES.includes(p));
   return {

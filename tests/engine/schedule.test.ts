@@ -37,14 +37,14 @@ describe('lookAhead', () => {
   it('moves every routine of every member', () => {
     const member: Member = {
       id: 'a',
-      name: 'Aai',
+      name: 'Aaji',
       group: 'elder',
       sensitive: false,
       routines: [walk],
     };
     const [out] = lookAhead([member], 10);
     expect(out?.routines[0]?.usualHour).toBe(31);
-    expect(out?.name).toBe('Aai');
+    expect(out?.name).toBe('Aaji');
     expect(lookAhead([], 10)).toEqual([]);
   });
 });

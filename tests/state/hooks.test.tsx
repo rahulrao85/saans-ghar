@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { act, cleanup, renderHook, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { airState, useAir, useLedger, type Fetched } from '../../src/state/hooks';
+import { airState, useAir, useLedger, useRefreshTick, type Fetched } from '../../src/state/hooks';
 import type { Place } from '../../src/state/household';
 import { airReport } from '../fixtures/air';
 import { json, stubFetch } from '../fixtures/ui';
@@ -124,7 +124,7 @@ describe('useAir', () => {
 describe('useLedger', () => {
   const advice = [
     {
-      memberId: 'aai',
+      memberId: 'aaji',
       routineId: 'walk',
       verdict: 'go' as const,
       usualHour: 18,
@@ -140,7 +140,7 @@ describe('useLedger', () => {
   const at = Date.parse('2026-11-24T06:00:00Z');
 
   it('returns the stored ledger untouched without a report time', () => {
-    const entries = [{ date: '2026-11-20', memberId: 'aai', saved: 3 }];
+    const entries = [{ date: '2026-11-20', memberId: 'aaji', saved: 3 }];
     localStorage.setItem('saans-ghar:ledger', JSON.stringify(entries));
     const { result } = renderHook(() => useLedger(advice, null));
     expect(result.current).toEqual(entries);
@@ -148,7 +148,34 @@ describe('useLedger', () => {
 
   it('adds today and saves it', () => {
     const { result } = renderHook(() => useLedger(advice, at));
-    expect(result.current).toEqual([{ date: '2026-11-24', memberId: 'aai', saved: 5 }]);
+    expect(result.current).toEqual([{ date: '2026-11-24', memberId: 'aaji', saved: 5 }]);
     expect(JSON.parse(localStorage.getItem('saans-ghar:ledger') ?? '[]')).toEqual(result.current);
+  });
+});
+
+describe('useRefreshTick', () => {
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it('ticks every 15 minutes and when the tab comes back, but not while hidden', () => {
+    vi.useFakeTimers();
+    const { result, unmount } = renderHook(() => useRefreshTick());
+    expect(result.current).toBe(0);
+    act(() => {
+      vi.advanceTimersByTime(900_000);
+    });
+    expect(result.current).toBe(1);
+    act(() => {
+      document.dispatchEvent(new Event('visibilitychange'));
+    });
+    expect(result.current).toBe(2);
+    const hidden = vi.spyOn(document, 'visibilityState', 'get').mockReturnValue('hidden');
+    act(() => {
+      document.dispatchEvent(new Event('visibilitychange'));
+    });
+    expect(result.current).toBe(2);
+    hidden.mockRestore();
+    unmount();
   });
 });

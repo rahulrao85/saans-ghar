@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { AirService, MAX_STATION_KM, coarse, istHour } from '../../server/air';
+import { AirService, MAX_STATION_KM, coarse } from '../../server/air';
+import { istHour } from '../../src/engine/geoTypes';
 import { airBody, fakeFetch, page, row, weatherBody, type Routes } from './fixtures';
 
 /** 24-Nov-2026 05:30 UTC = 11:00 IST. */

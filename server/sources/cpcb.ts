@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { concentrationFor, type Reading } from '../../src/engine/aqi';
-import type { Pollutant } from '../../src/engine/data/naqi';
+import { POLLUTANTS } from '../../src/engine/data/naqi';
 
 /** data.gov.in resource: "Real time Air Quality Index from various locations" (CPCB). */
 const RESOURCE_URL = 'https://api.data.gov.in/resource/3b01bcb8-0b14-4abf-b6f2-c1bfd384ba69';
@@ -23,8 +23,6 @@ export interface Station {
 
 /** Fetch function shape, injectable for tests. */
 export type FetchJson = (url: string) => Promise<unknown>;
-
-const POLLUTANTS: readonly Pollutant[] = ['PM2.5', 'PM10', 'NO2', 'SO2', 'CO', 'OZONE', 'NH3'];
 
 const recordSchema = z.object({
   state: z.string(),

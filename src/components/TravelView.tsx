@@ -1,14 +1,15 @@
 import { useState } from 'react';
 import type { AgeGroup } from '../engine/data/breathing';
-import { MODES } from '../engine/data/travel';
+import { MODES, MODE_IDS } from '../engine/data/travel';
 import { micrograms } from '../engine/format';
 import type { TravelMode } from '../engine/household';
 import { compareSwitches, tripOption } from '../engine/switches';
 import { NumberField, SelectField, type Option } from './fields';
 
-const MODE_OPTIONS: readonly Option<TravelMode>[] = (Object.keys(MODES) as TravelMode[]).map(
-  (m) => ({ value: m, label: MODES[m].label }),
-);
+const MODE_OPTIONS: readonly Option<TravelMode>[] = MODE_IDS.map((m) => ({
+  value: m,
+  label: MODES[m].label,
+}));
 const WHO: readonly Option<AgeGroup>[] = [
   { value: 'child', label: 'Child' },
   { value: 'adult', label: 'Adult' },

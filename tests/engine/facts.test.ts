@@ -31,8 +31,8 @@ const REPORT: AirReportData = {
 
 const MEMBERS: Member[] = [
   {
-    id: 'aai',
-    name: 'Aai',
+    id: 'aaji',
+    name: 'Aaji',
     group: 'elder',
     sensitive: true,
     routines: [
@@ -51,7 +51,7 @@ const MEMBERS: Member[] = [
 ];
 
 const advice = (over: Partial<RoutineAdvice> = {}): RoutineAdvice => ({
-  memberId: 'aai',
+  memberId: 'aaji',
   routineId: 'walk',
   verdict: 'go',
   usualHour: 18,
@@ -85,7 +85,7 @@ describe('buildFacts', () => {
       forecast: [{ hour: 14, pm25: 52 }],
       items: [
         {
-          member: 'Aai',
+          member: 'Aaji',
           group: 'elder',
           sensitive: true,
           label: 'Evening walk',

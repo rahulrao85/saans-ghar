@@ -96,6 +96,7 @@ describe('PhotoReader', () => {
     await userEvent.type(input, '-4');
     await userEvent.click(compare);
     expect(onReading).not.toHaveBeenCalled();
+    expect(screen.getByText('Enter a PM2.5 value from 0 to 2000 µg/m³.')).toBeInTheDocument();
   });
 });
 

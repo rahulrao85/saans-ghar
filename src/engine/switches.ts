@@ -1,6 +1,6 @@
 import type { AgeGroup } from './data/breathing';
 import { MINUTES_PER_HOUR } from './data/day';
-import { MODES } from './data/travel';
+import { MODES, MODE_IDS } from './data/travel';
 import { inhaledDose } from './dose';
 import type { TravelMode } from './household';
 
@@ -48,8 +48,7 @@ export function compareSwitches(
   group: AgeGroup,
 ): Switch[] {
   const base = tripOption(usual, km, pm25, group);
-  return (Object.keys(MODES) as TravelMode[])
-    .filter((m) => m !== usual)
+  return MODE_IDS.filter((m) => m !== usual)
     .map((m) => {
       const option = tripOption(m, km, pm25, group);
       return {

@@ -1,5 +1,5 @@
 import { useState, type SyntheticEvent } from 'react';
-import { findPlaces } from '../api';
+import { findPlaces, messageOf } from '../api';
 import type { PlacesData } from '../schemas/air';
 import { DEMOS } from '../state/demo';
 import type { Household, Place } from '../state/household';
@@ -56,7 +56,7 @@ export function PlacePicker({ onPlace, onDemo }: Props) {
       setResults(await findPlaces(query.trim()));
       setStatus({ kind: 'idle' });
     } catch (error) {
-      setStatus({ kind: 'error', message: (error as Error).message });
+      setStatus({ kind: 'error', message: messageOf(error) });
     }
   };
 

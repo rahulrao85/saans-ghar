@@ -16,7 +16,7 @@ export const FACTS: PlanFacts = {
   ],
   items: [
     {
-      member: 'Aai',
+      member: 'Aaji',
       group: 'elder',
       sensitive: true,
       label: 'Evening walk',

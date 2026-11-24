@@ -154,14 +154,14 @@ describe('LedgerCard', () => {
         today="2026-11-24"
         members={members}
         entries={[
-          { date: '2026-11-24', memberId: 'aai', saved: 1000 },
-          { date: '2026-11-20', memberId: 'aai', saved: 234.5 },
-          { date: '2026-11-01', memberId: 'aai', saved: 9999 },
+          { date: '2026-11-24', memberId: 'aaji', saved: 1000 },
+          { date: '2026-11-20', memberId: 'aaji', saved: 234.5 },
+          { date: '2026-11-01', memberId: 'aaji', saved: 9999 },
         ]}
       />,
     );
     expect(screen.getByText(/~1,235 µg/)).toBeInTheDocument();
-    expect(screen.getByText('Aai').nextSibling).toHaveTextContent('1,235 µg');
+    expect(screen.getByText('Aaji').nextSibling).toHaveTextContent('1,235 µg');
     expect(screen.getByText('Sameer').nextSibling).toHaveTextContent('0 µg');
   });
 });

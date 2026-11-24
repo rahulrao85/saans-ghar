@@ -8,14 +8,14 @@ if (ITEM === undefined) throw new Error('fixture has no item');
 describe('adviceLine', () => {
   it('explains a moved item with its saving', () => {
     expect(adviceLine(ITEM)).toBe(
-      'Aai, Evening walk: move it from 6 pm to 2 pm and go ahead. Why: PM2.5 index drops from 192 to 115. Saves ~42 µg of PM2.5.',
+      'Aaji, Evening walk: move it from 6 pm to 2 pm and go ahead. Why: PM2.5 index drops from 192 to 115. Saves ~42 µg of PM2.5.',
     );
   });
 
   it('keeps an item already at its cleanest hour, with no saving line', () => {
     const line = adviceLine({ ...ITEM, usualHour: 14, verdict: 'mask', savedDose: 0 });
     expect(line).toBe(
-      'Aai, Evening walk: keep 2 pm and go, but wear a well-fitted N95. Why: 2 pm is already the cleanest slot (index 115).',
+      'Aaji, Evening walk: keep 2 pm and go, but wear a well-fitted N95. Why: 2 pm is already the cleanest slot (index 115).',
     );
   });
 
@@ -48,9 +48,7 @@ describe('airLine', () => {
   });
 
   it('says so when there is no reading', () => {
-    expect(airLine(facts({ aqi: null }))).toBe(
-      'No live reading for Chembur, Mumbai right now.',
-    );
+    expect(airLine(facts({ aqi: null }))).toBe('No live reading for Chembur, Mumbai right now.');
   });
 });
 

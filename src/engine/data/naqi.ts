@@ -8,6 +8,17 @@
 /** Pollutants the CPCB live feed reports. */
 export type Pollutant = 'PM2.5' | 'PM10' | 'NO2' | 'SO2' | 'CO' | 'OZONE' | 'NH3';
 
+/** Every pollutant, in CPCB's order. */
+export const POLLUTANTS: readonly Pollutant[] = [
+  'PM2.5',
+  'PM10',
+  'NO2',
+  'SO2',
+  'CO',
+  'OZONE',
+  'NH3',
+];
+
 /** NAQI category names, lowest to highest. */
 export type AqiCategory = 'Good' | 'Satisfactory' | 'Moderate' | 'Poor' | 'Very Poor' | 'Severe';
 

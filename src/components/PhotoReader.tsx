@@ -1,6 +1,9 @@
 import { useState, type ChangeEvent } from 'react';
-import { readPhoto } from '../api';
+import { messageOf, readPhoto } from '../api';
 import { shrinkImage } from './shrinkImage';
+
+/** Highest PM2.5 any consumer monitor shows; anything above is a typo. */
+const MAX_PM25 = 2000;
 
 interface Props {
   readonly onReading: (pm25: number) => void;
@@ -11,6 +14,32 @@ type State =
   | { kind: 'busy' }
   | { kind: 'found'; value: number }
   | { kind: 'error'; message: string };
+
+/** What the photo reading says, with a confirm button when a number was found. */
+function PhotoStatus({ state, onConfirm }: { state: State; onConfirm: (value: number) => void }) {
+  return (
+    <div aria-live="polite">
+      {state.kind === 'busy' && <p className="muted">Reading the display…</p>}
+      {state.kind === 'error' && <p className="alert">{state.message}</p>}
+      {state.kind === 'found' && (
+        <div className="actions">
+          <p>
+            It reads <strong>{state.value} µg/m³</strong>. Is that right?
+          </p>
+          <button
+            type="button"
+            className="btn btn-primary btn-small"
+            onClick={() => {
+              onConfirm(state.value);
+            }}
+          >
+            Yes, use it
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
 
 /** Snap a monitor or purifier display; Gemini reads it, you confirm, or type it yourself. */
 export function PhotoReader({ onReading }: Props) {
@@ -30,13 +59,18 @@ export function PhotoReader({ onReading }: Props) {
           : { kind: 'found', value: reading.pm25 },
       );
     } catch (error) {
-      setState({ kind: 'error', message: (error as Error).message });
+      setState({ kind: 'error', message: messageOf(error) });
     }
   };
 
   const confirmTyped = () => {
     const value = Number(typed);
-    if (Number.isFinite(value) && value >= 0 && value <= 2000) onReading(Math.round(value));
+    if (Number.isFinite(value) && value >= 0 && value <= MAX_PM25) {
+      onReading(Math.round(value));
+      setState({ kind: 'idle' });
+    } else {
+      setState({ kind: 'error', message: `Enter a PM2.5 value from 0 to ${MAX_PM25} µg/m³.` });
+    }
   };
 
   return (
@@ -55,27 +89,13 @@ export function PhotoReader({ onReading }: Props) {
           onChange={(e) => void onFile(e)}
         />
       </div>
-      <div aria-live="polite">
-        {state.kind === 'busy' && <p className="muted">Reading the display…</p>}
-        {state.kind === 'error' && <p className="alert">{state.message}</p>}
-        {state.kind === 'found' && (
-          <div className="actions">
-            <p>
-              It reads <strong>{state.value} µg/m³</strong>. Is that right?
-            </p>
-            <button
-              type="button"
-              className="btn btn-primary btn-small"
-              onClick={() => {
-                onReading(state.value);
-                setState({ kind: 'idle' });
-              }}
-            >
-              Yes, use it
-            </button>
-          </div>
-        )}
-      </div>
+      <PhotoStatus
+        state={state}
+        onConfirm={(value) => {
+          onReading(value);
+          setState({ kind: 'idle' });
+        }}
+      />
       <div className="row">
         <div className="field">
           <label htmlFor="typed-pm">Or type the indoor PM2.5 (µg/m³)</label>
@@ -83,7 +103,7 @@ export function PhotoReader({ onReading }: Props) {
             id="typed-pm"
             type="number"
             min={0}
-            max={2000}
+            max={MAX_PM25}
             value={typed}
             onChange={(e) => {
               setTyped(e.target.value);

@@ -22,10 +22,10 @@ function Harness({
   return <FamilyEditor members={members} onChange={setMembers} />;
 }
 
-const aai = (): MemberData => structuredClone(household().members[0]!);
+const aaji = (): MemberData => structuredClone(household().members[0]!);
 
 function routine(i: number): RoutineData {
-  return { ...aai().routines[0]!, id: `r${i}`, label: `Walk ${i}` };
+  return { ...aaji().routines[0]!, id: `r${i}`, label: `Walk ${i}` };
 }
 
 describe('routine helpers', () => {
@@ -42,7 +42,7 @@ describe('FamilyEditor', () => {
     let latest: MemberData[] = [];
     render(
       <Harness
-        initial={[aai()]}
+        initial={[aaji()]}
         onState={(m) => {
           latest = m;
         }}
@@ -62,7 +62,7 @@ describe('FamilyEditor', () => {
     let latest: MemberData[] = [];
     render(
       <Harness
-        initial={[aai()]}
+        initial={[aaji()]}
         onState={(m) => {
           latest = m;
         }}
@@ -90,7 +90,7 @@ describe('FamilyEditor', () => {
     let latest: MemberData[] = [];
     render(
       <Harness
-        initial={[{ ...aai(), routines: [routine(1), routine(2)] }]}
+        initial={[{ ...aaji(), routines: [routine(1), routine(2)] }]}
         onState={(m) => {
           latest = m;
         }}
@@ -104,7 +104,7 @@ describe('FamilyEditor', () => {
     let latest: MemberData[] = [];
     render(
       <Harness
-        initial={[aai()]}
+        initial={[aaji()]}
         onState={(m) => {
           latest = m;
         }}
@@ -124,7 +124,7 @@ describe('FamilyEditor', () => {
     let latest: MemberData[] = [];
     render(
       <Harness
-        initial={[aai()]}
+        initial={[aaji()]}
         onState={(m) => {
           latest = m;
         }}
@@ -137,17 +137,17 @@ describe('FamilyEditor', () => {
     for (let i = 0; i < 8; i++) await userEvent.click(add()!);
     expect(latest).toHaveLength(10);
     expect(add()).not.toBeInTheDocument();
-    await userEvent.click(screen.getByRole('button', { name: 'Remove Aai' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Remove Aaji' }));
     expect(latest).toHaveLength(9);
     expect(add()).toBeInTheDocument();
   });
 
   it('edits only the member whose card was touched', async () => {
     let latest: MemberData[] = [];
-    const second = { ...aai(), id: 'sameer', name: 'Sameer', routines: [routine(1)] };
+    const second = { ...aaji(), id: 'sameer', name: 'Sameer', routines: [routine(1)] };
     render(
       <Harness
-        initial={[aai(), second]}
+        initial={[aaji(), second]}
         onState={(m) => {
           latest = m;
         }}
@@ -155,11 +155,11 @@ describe('FamilyEditor', () => {
     );
     const cards = screen.getAllByRole('listitem');
     await userEvent.type(within(cards[1]!).getByLabelText('Name'), 'X');
-    expect(latest.map((m) => m.name)).toEqual(['Aai', 'SameerX']);
+    expect(latest.map((m) => m.name)).toEqual(['Aaji', 'SameerX']);
   });
 
   it('labels the remove button "member" when the name is empty', () => {
-    render(<Harness initial={[{ ...aai(), name: '' }]} />);
+    render(<Harness initial={[{ ...aaji(), name: '' }]} />);
     expect(screen.getByRole('button', { name: 'Remove member' })).toBeInTheDocument();
   });
 });

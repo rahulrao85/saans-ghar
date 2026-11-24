@@ -29,7 +29,11 @@ const memberSchema = z.object({
 
 const placeSchema = z.object({ label: z.string(), lat: z.number(), lon: z.number() });
 
-/** What the app remembers on this device. Nothing leaves it except the rounded location. */
+/**
+ * What the app remembers, in this browser only. The server receives the chosen
+ * coordinates (and rounds them to ~1 km); AI requests carry first names and
+ * routine labels, never coordinates.
+ */
 export const householdSchema = z.object({
   place: placeSchema.nullable(),
   members: z.array(memberSchema).max(MAX_MEMBERS),
@@ -66,13 +70,18 @@ function write(key: string, value: unknown): void {
   }
 }
 
+/** A new visitor: no place, no members. */
 export const EMPTY_HOUSEHOLD: Household = { place: null, members: [] };
 
+/** The saved household, or an empty one if nothing valid is stored. */
 export const loadHousehold = (): Household => read(HOUSEHOLD_KEY, householdSchema, EMPTY_HOUSEHOLD);
+/** Save the household in this browser. */
 export const saveHousehold = (h: Household): void => {
   write(HOUSEHOLD_KEY, h);
 };
+/** The saved weekly ledger, or an empty one. */
 export const loadLedger = (): LedgerEntry[] => read(LEDGER_KEY, ledgerSchema, []);
+/** Save the weekly ledger in this browser. */
 export const saveLedger = (entries: readonly LedgerEntry[]): void => {
   write(LEDGER_KEY, entries);
 };

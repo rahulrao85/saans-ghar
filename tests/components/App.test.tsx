@@ -31,9 +31,7 @@ describe('App', () => {
     expect(screen.getByRole('heading', { name: /Breathe less smoke/ })).toBeInTheDocument();
     expect(screen.queryByRole('tablist')).not.toBeInTheDocument();
     await userEvent.click(screen.getByRole('button', { name: 'Mumbai family' }));
-    expect(
-      await screen.findByRole('heading', { name: /Air now in Chembur/ }),
-    ).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: /Air now in Chembur/ })).toBeInTheDocument();
     expect(screen.getByText(/Planning for/)).toHaveTextContent('3 people');
     expect(screen.getByRole('region', { name: 'This afternoon' })).toBeInTheDocument();
     expect(screen.getAllByText(/Saves ~/).length).toBeGreaterThan(0);
@@ -85,7 +83,7 @@ describe('App', () => {
     const stored = JSON.parse(localStorage.getItem('saans-ghar:household') ?? '{}') as {
       members: { name: string }[];
     };
-    expect(stored.members.map((m) => m.name)).toEqual(['Aai', 'Member 2']);
+    expect(stored.members.map((m) => m.name)).toEqual(['Aaji', 'Member 2']);
     await userEvent.click(tab('Today'));
     expect(screen.getAllByRole('heading', { level: 4 })).toHaveLength(2);
   });
@@ -157,15 +155,15 @@ describe('App', () => {
   it('plans tomorrow when today is nearly over', async () => {
     vi.setSystemTime(new Date(IST_LATE));
     const h = household();
-    const [aai] = h.members;
+    const [aaji] = h.members;
     saveHousehold({
       ...h,
-      members: [{ ...aai!, routines: [{ ...aai!.routines[0]!, latestHour: 20 }] }],
+      members: [{ ...aaji!, routines: [{ ...aaji!.routines[0]!, latestHour: 20 }] }],
     });
     stubFetch(airRoute());
     render(<App />);
     const section = await screen.findByRole('region', { name: /Tomorrow/ });
-    expect(within(section).getByText(/Aai · Evening walk/)).toBeInTheDocument();
+    expect(within(section).getByText(/Aaji · Evening walk/)).toBeInTheDocument();
   });
 
   it('answers a question on the Ask tab through the rules fallback', async () => {

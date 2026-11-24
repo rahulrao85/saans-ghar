@@ -10,7 +10,7 @@ afterEach(cleanup);
 
 function advice(over: Partial<RoutineAdvice> = {}): RoutineAdvice {
   return {
-    memberId: 'aai',
+    memberId: 'aaji',
     routineId: 'walk',
     verdict: 'shorten',
     usualHour: 7,
@@ -52,12 +52,12 @@ describe('PlanView', () => {
   it('shows a moved routine with its saving and the weather reason', () => {
     render(<PlanView advice={[advice()]} members={members} report={airReport()} />);
     const section = screen.getByRole('region', { name: 'This afternoon' });
-    expect(within(section).getByText('Aai · Evening walk')).toBeInTheDocument();
+    expect(within(section).getByText('Aaji · Evening walk')).toBeInTheDocument();
     expect(within(section).getByText('Shorten')).toBeInTheDocument();
     expect(within(section).getByText(/Move from 7 am to 2 pm\./)).toBeInTheDocument();
     expect(within(section).getByText(/150 at the usual time, 90 at 2 pm/)).toBeInTheDocument();
     expect(within(section).getByText(/air layer that dilutes smoke/)).toBeInTheDocument();
-    expect(within(section).getByText('Saves ~60 µg of PM2.5 for Aai')).toBeInTheDocument();
+    expect(within(section).getByText('Saves ~60 µg of PM2.5 for Aaji')).toBeInTheDocument();
     expect(screen.getByText('routines moved to a cleaner hour').previousSibling).toHaveTextContent(
       '1',
     );

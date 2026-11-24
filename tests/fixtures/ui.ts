@@ -58,8 +58,8 @@ export function household(over: Partial<Household> = {}): Household {
     place: MUMBAI_PLACE,
     members: [
       {
-        id: 'aai',
-        name: 'Aai',
+        id: 'aaji',
+        name: 'Aaji',
         group: 'elder',
         sensitive: true,
         routines: [
@@ -93,7 +93,7 @@ export function planFacts(over: Partial<PlanFacts> = {}): PlanFacts {
     forecast: Array.from({ length: 24 }, (_, hour) => ({ hour, pm25: 30 + hour })),
     items: [
       {
-        member: 'Aai',
+        member: 'Aaji',
         group: 'elder',
         sensitive: true,
         label: 'Evening walk',

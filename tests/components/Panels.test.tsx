@@ -38,7 +38,7 @@ describe('Panels', () => {
     expect(screen.getAllByRole('tabpanel', { hidden: true })).toHaveLength(6);
     expect(screen.getByRole('tabpanel')).toHaveAttribute('id', 'panel-today');
     expect(screen.getByRole('button', { name: 'Explain' })).toBeInTheDocument();
-    expect(screen.getByRole('heading', { name: 'This week' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: "This week's plans" })).toBeInTheDocument();
   });
 
   it('hides the explain panel when there is nothing to explain', () => {

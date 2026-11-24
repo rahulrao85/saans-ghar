@@ -16,6 +16,17 @@ export interface ModeFacts {
   readonly co2PerPkm: number;
 }
 
+/** Every mode, in the order the app lists them. */
+export const MODE_IDS: readonly TravelMode[] = [
+  'walk',
+  'cycle',
+  'two-wheeler',
+  'auto',
+  'bus',
+  'metro',
+  'car',
+];
+
 /** Facts per mode. Walking and cycling emit nothing but breathe harder. */
 export const MODES: Readonly<Record<TravelMode, ModeFacts>> = {
   walk: { label: 'Walk', speedKmh: 4.5, activity: 'moderate', exposureShare: 1.1, co2PerPkm: 0 },

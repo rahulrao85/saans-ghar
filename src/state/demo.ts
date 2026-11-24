@@ -22,12 +22,12 @@ function routine(
 
 const mumbaiMembers: MemberData[] = [
   {
-    id: 'aai',
-    name: 'Aai',
+    id: 'aaji',
+    name: 'Aaji',
     group: 'elder',
     sensitive: true,
     routines: [
-      routine('aai-walk', 'Evening walk', 18, {
+      routine('aaji-walk', 'Evening walk', 18, {
         activity: 'moderate',
         minutes: 45,
         required: false,

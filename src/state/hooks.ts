@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { getAir } from '../api';
+import { getAir, messageOf } from '../api';
 import type { RoutineAdvice } from '../engine/plan';
 import type { AirReportData } from '../schemas/air';
 import { addToLedger } from './derive';
@@ -22,9 +22,30 @@ export interface AirState {
   readonly loading: boolean;
 }
 
-/** Fetch the air report whenever the place changes; state is only set from the response. */
+/** Refresh every 15 minutes, and whenever the tab comes back into view. */
+const REFRESH_MS = 900_000;
+
+/** A counter that ticks when the plan should be refreshed (the old plan stays on screen meanwhile). */
+export function useRefreshTick(): number {
+  const [tick, setTick] = useState(0);
+  useEffect(() => {
+    const bump = () => {
+      if (document.visibilityState === 'visible') setTick((t) => t + 1);
+    };
+    const timer = setInterval(bump, REFRESH_MS);
+    document.addEventListener('visibilitychange', bump);
+    return () => {
+      clearInterval(timer);
+      document.removeEventListener('visibilitychange', bump);
+    };
+  }, []);
+  return tick;
+}
+
+/** Fetch the air report when the place changes or a refresh is due; state is only set from responses. */
 export function useAir(place: Place | null): AirState {
   const [fetched, setFetched] = useState<Fetched | null>(null);
+  const tick = useRefreshTick();
   const key = place === null ? null : `${place.lat},${place.lon}`;
   const lat = place?.lat;
   const lon = place?.lon;
@@ -37,13 +58,13 @@ export function useAir(place: Place | null): AirState {
         if (live) setFetched({ key: k, data, at: Date.now() });
       },
       (error: unknown) => {
-        if (live) setFetched({ key: k, at: Date.now(), error: (error as Error).message });
+        if (live) setFetched({ key: k, at: Date.now(), error: messageOf(error) });
       },
     );
     return () => {
       live = false;
     };
-  }, [lat, lon]);
+  }, [lat, lon, tick]);
   return airState(fetched, key);
 }
 

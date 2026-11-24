@@ -22,7 +22,7 @@ describe('demo households', () => {
   it('clamps windows to the day', () => {
     const dadaji = DEMOS[1]?.household.members[0]?.routines[0];
     expect(dadaji).toMatchObject({ earliestHour: 0, latestHour: 12 });
-    const aai = DEMOS[0]?.household.members[0]?.routines[0];
-    expect(aai).toMatchObject({ earliestHour: 14, latestHour: 22 });
+    const aaji = DEMOS[0]?.household.members[0]?.routines[0];
+    expect(aaji).toMatchObject({ earliestHour: 14, latestHour: 22 });
   });
 });

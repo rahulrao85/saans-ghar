@@ -59,7 +59,7 @@ describe('household storage', () => {
 describe('ledger storage', () => {
   it('round-trips entries and defaults to empty', () => {
     expect(loadLedger()).toEqual([]);
-    const entries = [{ date: '2026-11-24', memberId: 'aai', saved: 12.5 }];
+    const entries = [{ date: '2026-11-24', memberId: 'aaji', saved: 12.5 }];
     saveLedger(entries);
     expect(loadLedger()).toEqual(entries);
   });

@@ -38,7 +38,7 @@ test('first visit explains the app and passes axe in both themes', async ({ page
 test('a demo family gets a sourced reading and a plan with savings', async ({ page }) => {
   await openDemo(page);
   await expect(page.getByText('Source: CPCB')).toBeVisible();
-  await expect(page.getByText(/Saves ~\d+ µg of PM2\.5 for Aai/)).toBeVisible();
+  await expect(page.getByText(/Saves ~\d+ µg of PM2\.5 for Aaji/)).toBeVisible();
   await axe(page);
   await noSideScroll(page);
 });
@@ -46,7 +46,7 @@ test('a demo family gets a sourced reading and a plan with savings', async ({ pa
 test('the plan is explained without an AI key', async ({ page }) => {
   await openDemo(page);
   await page.getByRole('button', { name: 'Explain' }).click();
-  await expect(page.getByText('Built-in explanation')).toBeVisible();
+  await expect(page.getByText('Built-in explanation', { exact: true })).toBeVisible();
   await expect(page.getByText(/Air in Chembur, Mumbai: AQI 162/)).toBeVisible();
 });
 

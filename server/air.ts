@@ -6,8 +6,6 @@ import { nearest, type LatLon } from './geo';
 import { fetchStations, type FetchJson, type Station } from './sources/cpcb';
 import { fetchPmForecast, fetchWeather, type WeatherHour } from './sources/openMeteo';
 
-export { istHour };
-
 /** A station further than this is not "your" air. */
 export const MAX_STATION_KM = 25;
 /** 30 minutes. */
@@ -15,7 +13,7 @@ const STATIONS_TTL_MS = 1_800_000;
 /** 1 hour. */
 const FORECAST_TTL_MS = 3_600_000;
 /** Round coordinates to ~1 km before caching or sending anywhere (privacy + cache hits). */
-const COORD_DECIMALS = 100;
+const COORD_SCALE = 100;
 
 /** Everything the app needs about the air at one place. */
 export interface AirReport {
@@ -41,8 +39,8 @@ export interface AirDeps {
 /** Round a point to about 1 km. */
 export function coarse(p: LatLon): LatLon {
   return {
-    lat: Math.round(p.lat * COORD_DECIMALS) / COORD_DECIMALS,
-    lon: Math.round(p.lon * COORD_DECIMALS) / COORD_DECIMALS,
+    lat: Math.round(p.lat * COORD_SCALE) / COORD_SCALE,
+    lon: Math.round(p.lon * COORD_SCALE) / COORD_SCALE,
   };
 }
 

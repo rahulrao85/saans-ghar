@@ -4,8 +4,8 @@ import { FACTS, facts } from '../fixtures/facts';
 
 describe('rulesAnswer', () => {
   it('answers about a member by name', () => {
-    const out = rulesAnswer('What about Aai?', FACTS);
-    expect(out).toContain('Aai, Evening walk');
+    const out = rulesAnswer('What about Aaji?', FACTS);
+    expect(out).toContain('Aaji, Evening walk');
   });
 
   it('answers about the best time from the cleanest forecast hour', () => {
