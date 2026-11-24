@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import type { HourlyPm } from '../../src/engine/forecast';
+import type { WeatherHourData } from '../../src/engine/weatherTypes';
 import type { LatLon } from '../geo';
 import type { FetchJson } from './cpcb';
 
@@ -37,12 +38,8 @@ const geocodeSchema = z.object({
     .optional(),
 });
 
-/** Weather that explains smog: low mixing height and still air trap pollution. */
-export interface WeatherHour {
-  readonly hour: number;
-  readonly mixingHeightM: number;
-  readonly windKmh: number;
-}
+/** Weather that explains smog (shared with the client). */
+export type WeatherHour = WeatherHourData;
 
 /** A place search match. */
 export interface Place extends LatLon {
@@ -75,11 +72,11 @@ export async function fetchWeather(fetchJson: FetchJson, p: LatLon): Promise<Wea
   const fields = 'hourly=boundary_layer_height,wind_speed_10m';
   const body = weatherSchema.parse(await fetchJson(`${WEATHER_URL}?${pointQuery(p)}&${fields}`));
   const hours = hourIndex(body.hourly.time);
-  return body.hourly.time.flatMap((_, i) => {
+  return hours.flatMap((hour, i) => {
     const mixing = body.hourly.boundary_layer_height[i];
     const wind = body.hourly.wind_speed_10m[i];
     if (mixing == null || wind == null) return [];
-    return [{ hour: hours[i] ?? i, mixingHeightM: mixing, windKmh: wind }];
+    return [{ hour, mixingHeightM: mixing, windKmh: wind }];
   });
 }
 

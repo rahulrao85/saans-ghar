@@ -1,9 +1,12 @@
 import { computeAqi, type AqiResult } from '../src/engine/aqi';
 import { calibrate, type HourlyPm } from '../src/engine/forecast';
+import { istHour } from '../src/engine/geoTypes';
 import { StaleCache } from './cache';
 import { nearest, type LatLon } from './geo';
 import { fetchStations, type FetchJson, type Station } from './sources/cpcb';
 import { fetchPmForecast, fetchWeather, type WeatherHour } from './sources/openMeteo';
+
+export { istHour };
 
 /** A station further than this is not "your" air. */
 export const MAX_STATION_KM = 25;
@@ -11,10 +14,6 @@ export const MAX_STATION_KM = 25;
 const STATIONS_TTL_MS = 1_800_000;
 /** 1 hour. */
 const FORECAST_TTL_MS = 3_600_000;
-/** UTC+05:30. */
-const IST_OFFSET_MS = 19_800_000;
-const MS_PER_HOUR = 3_600_000;
-const HOURS_PER_DAY = 24;
 /** Round coordinates to ~1 km before caching or sending anywhere (privacy + cache hits). */
 const COORD_DECIMALS = 100;
 
@@ -37,11 +36,6 @@ export interface AirDeps {
   readonly fetchJson: FetchJson;
   readonly dataGovKey: string | undefined;
   readonly now: () => number;
-}
-
-/** Current hour in India, as hours since local midnight. */
-export function istHour(nowMs: number): number {
-  return Math.floor((nowMs + IST_OFFSET_MS) / MS_PER_HOUR) % HOURS_PER_DAY;
 }
 
 /** Round a point to about 1 km. */

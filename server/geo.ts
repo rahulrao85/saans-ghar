@@ -1,8 +1,6 @@
-/** A point on Earth in decimal degrees. */
-export interface LatLon {
-  readonly lat: number;
-  readonly lon: number;
-}
+import type { LatLon } from '../src/engine/geoTypes';
+
+export type { LatLon };
 
 const EARTH_RADIUS_KM = 6371;
 const DEGREES_PER_HALF_TURN = 180;

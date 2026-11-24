@@ -52,12 +52,21 @@ export function rateLimit(limit: number, windowMs: number, now = Date.now): Midd
   };
 }
 
+/** Host part of an Origin header; null for "null" or anything malformed. */
+function hostOf(origin: string): string | null {
+  try {
+    return new URL(origin).host;
+  } catch {
+    return null;
+  }
+}
+
 /** Reject cross-site writes: the Origin host must match the Host header. */
 export const sameOrigin: MiddlewareHandler = async (c, next) => {
   if (c.req.method !== 'GET' && c.req.method !== 'HEAD') {
     const origin = c.req.header('origin');
     const host = c.req.header('host');
-    if (origin === undefined || host === undefined || new URL(origin).host !== host) {
+    if (origin === undefined || host === undefined || hostOf(origin) !== host) {
       return c.json({ error: 'Cross-site request blocked.' }, STATUS.forbidden);
     }
   }
