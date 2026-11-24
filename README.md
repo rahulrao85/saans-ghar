@@ -2,90 +2,135 @@
 
 **Live:** https://saansghar.rahulrao.in · **Challenge:** PromptWars Virtual 6, "Urban Air Quality Assistant"
 
-Saans Ghar (Hindi: "breath home") turns the live CPCB reading at your nearest monitoring station into a plan for each person in your family. It says when the child should play, when grandmother should walk, how the commute should go, and **how many micrograms of PM2.5 each change saves that person**. Every number comes from code; Gemini only explains, translates and answers questions about those numbers.
+Saans Ghar (Hindi: "breath home") turns the live CPCB reading at your nearest monitoring station into a plan for each person in your family. It says when the child should play, when grandmother should walk and how the commute should go, and it shows **how many micrograms of PM2.5 each change saves that person** and **how much CO₂ a cleaner trip avoids**. Every number comes from code. Gemini explains, translates and answers questions about those numbers, and a number guard rejects any reply that adds one of its own.
 
-## What it does
+## Chosen Vertical
 
-| Feature                     | How                                                                                                                                                                                                                                                                                                 |
-| --------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Live air, sourced**       | Nearest CPCB station (data.gov.in feed) within 25 km. We compute the Indian NAQI ourselves from the pollutant sub-indices and show the station, distance and IST timestamp. With no station nearby, the Open-Meteo (CAMS) model is used and labelled "Modelled".                                    |
-| **Day plan**                | Each routine (school run, walk, play, commute) moves to the cleanest allowed hour in its window, or is shortened, moved indoors or done with an N95. Children, older adults and sensitive members get lower limits. Sections run _This morning → Tomorrow morning_, so the plan always looks ahead. |
-| **Why + impact**            | Each tip shows the PM2.5 index at the usual vs the advised hour, the weather reason (mixing-layer depth) when there is one, and the **dose saved**: concentration × breathing rate for age and activity (US EPA EFH 2011) × minutes.                                                                |
-| **Home air**                | Single-room indoor model (penetration, air changes by window habit, settling, purifier CADR), AHAM purifier sizing, the best hour to air out, and swaps for indoor smoke (mosquito coils, incense, frying, dry sweeping) with evidence.                                                             |
-| **Photo reading**           | Snap a monitor or purifier display; Gemini reads the PM2.5 number (JSON schema + zod), **you confirm it**, and the app compares indoor vs outdoor. Photos are downscaled and EXIF-stripped in the browser and never stored.                                                                         |
-| **Travel switches**         | Same trip by each mode: what you breathe and what you emit (approximate factors, labelled).                                                                                                                                                                                                         |
-| **Society / school notice** | Code makes the call (NAQI band, plus the GRAP-stage level in Delhi-NCR); Gemini words it in English, Hindi or Marathi; copy or share to WhatsApp.                                                                                                                                                   |
-| **Ask**                     | Gemini **function calling** over our own tools (`air_now`, `forecast_window`, `member_plan`, `inhaled_dose`).                                                                                                                                                                                       |
-| **Weekly ledger**           | "Your family avoided ~X µg this week", stored only in this browser.                                                                                                                                                                                                                                 |
-| **Light + dark**            | Aurora (white, blue, orange) and Voltage (black, yellow, green) themes; 375 px mobile layout.                                                                                                                                                                                                       |
+**Challenge 6: Urban Air Quality Assistant.**
 
-## Responsible AI: the number guard
+> Create a GenAI-powered assistant that helps families and communities navigate severe winter smog and urban air pollution. The application should suggest low-emission daily routines, indoor air quality hacks, and sustainable alternatives tailored to their location and lifestyle, while clearly explaining the direct impact of their choices.
 
-The model never produces a figure. Code computes the facts; the prompt says to use only those; then `server/ai/guard.ts` extracts every number written in digits (Devanagari digits included) and **rejects the reply if any of them is not in the facts or tool results**, or if it spells a number out in words (English, Hindi or Marathi). A rejected or failed reply falls back to the built-in rules text, labelled "Built-in explanation". The whole app works with **no Gemini key at all**.
+**Who it is for:** Indian households with children, older adults or someone with asthma, heart or lung conditions, and the housing societies and schools they belong to. **Why it matters:** in winter the same city can swing from "Satisfactory" to "Very Poor" within a day, and the cleanest hour is often not the habitual one. Moving a walk by a few hours, or a commute to the metro, cuts what each person breathes far more than most families realise.
 
-## Architecture
+## Challenge Alignment
+
+Every clause of the brief, where it shows up in the app, and the code and tests behind it. Full traceability: [PROBLEM_ALIGNMENT.md](PROBLEM_ALIGNMENT.md).
+
+| Brief clause                                    | What the app does                                                                                                                                   | Code                                                                  | Tests                                                                    |
+| ----------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------- | ------------------------------------------------------------------------ |
+| GenAI-powered assistant                         | Gemini explains the plan (English, Hindi, Marathi), answers questions with **function calling**, writes the society notice and reads monitor photos | `server/ai/*`, `server/aiRoutes.ts`                                   | `tests/server/ai-*.test.ts`, `tests/server/aiRoutes.test.ts`             |
+| families                                        | Members with age group (child, adult, older adult) and a sensitive flag; each gets their own advice and limits                                      | `src/engine/plan.ts`, `src/components/FamilyEditor.tsx`               | `tests/engine/plan.test.ts`, `tests/components/FamilyEditor.test.tsx`    |
+| communities                                     | Society / school notice: code makes the outdoor-play call (NAQI band, Delhi-NCR GRAP level); share to WhatsApp                                      | `src/engine/notice.ts`, `src/components/ShareView.tsx`                | `tests/engine/community.test.ts`, `tests/components/ShareView.test.tsx`  |
+| severe winter smog and urban air pollution      | Live CPCB station NAQI with station, distance and IST time; 24-hour PM2.5 trend; mixing-layer (inversion) reason on each moved routine              | `server/sources/cpcb.ts`, `server/air.ts`, `src/engine/why.ts`        | `tests/server/cpcb.test.ts`, `tests/engine/why.test.ts`                  |
+| low-emission daily routines                     | Each routine moves to its cleanest hour; trip routines also show their **low-emission option** (CO₂ saved per trip, without breathing more)         | `src/engine/plan.ts`, `src/engine/greener.ts`                         | `tests/engine/plan.test.ts`, `tests/engine/greener.test.ts`              |
+| indoor air quality hacks                        | Indoor estimate, purifier sizing (AHAM), best hour to air out, smoke-source swaps, photo reading of a monitor                                       | `src/engine/indoor.ts`, `src/components/HomeView.tsx`                 | `tests/engine/indoor.test.ts`, `tests/components/HomeView.test.tsx`      |
+| sustainable alternatives                        | Same trip by every mode: minutes, PM2.5 breathed and CO₂ emitted                                                                                    | `src/engine/switches.ts`, `src/components/TravelView.tsx`             | `tests/engine/community.test.ts`, `tests/components/TravelView.test.tsx` |
+| tailored to their location and lifestyle        | Any Indian place (CPCB station search, geocoding, device location); each member's own routines, times, effort and flexibility                       | `server/places.ts`, `src/state/household.ts`                          | `tests/server/places.test.ts`, `tests/state/household.test.ts`           |
+| clearly explaining the direct impact of choices | Every tip: index at usual vs advised hour, the weather reason, **µg of PM2.5 saved**; weekly total of planned savings                               | `src/engine/dose.ts`, `src/engine/explain.ts`, `src/engine/ledger.ts` | `tests/engine/explain.test.ts`, `tests/state/derive.test.ts`             |
+
+## Approach and Logic
+
+1. **Measure, don't guess.** Air comes from the nearest CPCB station (data.gov.in). The feed publishes pollutant sub-indices, so we convert them back to concentrations with the CPCB breakpoints and compute the NAQI ourselves. With no station within 25 km, the Open-Meteo (CAMS) model is used and labelled "Modelled".
+2. **Shape from the model, level from the station.** The CAMS hourly PM2.5 forecast is scaled so the current hour matches the station (models under-read Indian winter smog: Delhi, 23-Nov-2026, model 72 vs station 247 µg/m³). It is labelled "estimated trend".
+3. **Plan each routine.** For every member's routine, find the cleanest start within the hours the family accepts, then decide: go, shorten, N95 (for trips that can't be skipped) or indoors. Children, older adults and sensitive members get lower limits.
+4. **Count the impact.** Dose = PM2.5 × breathing rate for age and activity (US EPA Exposure Factors Handbook 2011) × minutes. Trips add CO₂ per passenger-km by mode. Masks are advised but never credited with a saving.
+5. **Let the AI word it, not decide it.** Code computes every fact. Gemini gets the facts (or calls tools that return them), and the number guard drops any reply containing a number that is not in them.
+
+Key trade-offs are recorded in [docs/build-log.md](docs/build-log.md).
+
+## How the Solution Works
 
 ```mermaid
 flowchart LR
   B[Browser: React UI + engine] -->|GET /api/air| S[Hono server]
   S --> C[CPCB via data.gov.in]
   S --> O[Open-Meteo: PM2.5 forecast, weather, geocoding]
-  B -->|POST /api/ai/*  plan facts| S
+  B -->|POST /api/ai/* plan facts| S
   S -->|facts + tools| G[Gemini, free tier]
   G -->|reply| N[Number guard]
   N -->|grounded text, or rules fallback| B
 ```
 
-- `src/engine/`: pure, tested functions (NAQI, dose, plan, indoor, switches, notice, ledger). The same engine runs in the browser and on the server.
-- `server/`: data adapters with a stale-while-failing cache (data.gov.in often returns 502), the API, AI tasks and the guard.
-- `src/components/`: render only.
+**User journey:** pick a place (search, location or a sample family) → see the air now, its source and the next 24 hours → **Today**: the plan by morning, afternoon, evening and tomorrow, each tip with its saving → **Family**: edit members and routines → **Home air**: room, purifier, airing hour, photo reading → **Travel**: compare modes → **Share**: the society notice → **Ask**: questions in English, Hindi or Marathi.
 
-## Requirement → code → test
+### Directory organisation
 
-| Brief / explainer asks for          | Code                                                                   | Tests                                                        |
-| ----------------------------------- | ---------------------------------------------------------------------- | ------------------------------------------------------------ |
-| Real-time data with source and time | `server/sources/cpcb.ts`, `server/air.ts`, `src/components/AirNow.tsx` | `tests/server/cpcb.test.ts`, `tests/server/air.test.ts`      |
-| Any Indian location                 | `server/places.ts`, `src/components/PlacePicker.tsx`                   | `tests/server/places.test.ts`                                |
-| Personalised per family member      | `src/engine/plan.ts`, `src/engine/household.ts`                        | `tests/engine/plan.test.ts`                                  |
-| Morning / afternoon / evening plan  | `src/engine/schedule.ts`, `src/components/PlanView.tsx`                | `tests/engine/schedule.test.ts`                              |
-| "Why" and the impact of each choice | `src/engine/dose.ts`, `src/engine/why.ts`, `src/engine/explain.ts`     | `tests/engine/explain.test.ts`, `tests/engine/why.test.ts`   |
-| Indoor guidance                     | `src/engine/indoor.ts`, `src/components/HomeView.tsx`                  | `tests/engine/indoor.test.ts`                                |
-| GenAI, grounded                     | `server/ai/*`, `server/aiRoutes.ts`                                    | `tests/server/ai-*.test.ts`, `tests/server/aiRoutes.test.ts` |
-| Works without AI                    | rules fallbacks in `src/engine/answer.ts`, `src/engine/explain.ts`     | `e2e/app.spec.ts` (runs with no key)                         |
-| Accessible, mobile                  | `src/styles/app.css`, `src/components/Tabs.tsx`                        | `e2e/app.spec.ts` (axe, both themes, desktop + Pixel 7)      |
+```
+src/engine/      pure functions: NAQI, dose, plan, indoor, switches, greener, notice, ledger, explanations
+src/schemas/     zod schemas shared by browser and server
+src/state/       household storage, derived plan, data hooks
+src/components/  React views (render only)
+server/sources/  CPCB and Open-Meteo adapters (injected fetch, validated)
+server/ai/       Gemini adapter, prompts, tools, tasks, number guard
+server/          air service, stale-while-failing cache, HTTP guards, routes
+tests/           Vitest: engine, server, AI, state, components
+e2e/             Playwright + axe, desktop and Pixel 7
+```
 
-## Run it
+### Endpoints
+
+| Method | Path               | Purpose                                                    |
+| ------ | ------------------ | ---------------------------------------------------------- |
+| GET    | `/api/health`      | Station count, cache state, whether AI is enabled          |
+| GET    | `/api/places?q=`   | CPCB stations, then places, matching a search (India only) |
+| GET    | `/api/air?lat&lon` | NAQI, station, PM2.5, calibrated forecast, weather         |
+| POST   | `/api/ai/explain`  | Plan explanation in a language (Gemini or rules)           |
+| POST   | `/api/ai/ask`      | Question answered with function calling (Gemini or rules)  |
+| POST   | `/api/ai/notice`   | Society / school notice; the call is made by code          |
+| POST   | `/api/ai/read`     | PM2.5 read from a monitor photo (Gemini, user confirms)    |
+
+### Quick start
 
 ```bash
 npm ci
-cp .env.example .env        # add DATA_GOV_API_KEY (free) and optionally GEMINI_API_KEY (free AI Studio key)
+cp .env.example .env        # DATA_GOV_API_KEY (free) and optionally GEMINI_API_KEY (free AI Studio key)
 npm run build
 npm run start:local         # http://localhost:8787
 ```
 
-Without `DATA_GOV_API_KEY` the app uses the Open-Meteo model and says so. Without `GEMINI_API_KEY` every AI feature answers from the rules, except photo reading, which asks you to type the number. Docker: `docker build -t saans-ghar . && docker run -p 8080:8080 --env-file .env saans-ghar`.
+Without `DATA_GOV_API_KEY` the app uses the Open-Meteo model and says so. Without `GEMINI_API_KEY` every AI feature answers from the rules, except photo reading, which asks you to type the number. Docker: `docker build -t saans-ghar . && docker run -p 8080:8080 --env-file .env saans-ghar`. Sample households for evaluators: [SAMPLE_INPUTS.md](SAMPLE_INPUTS.md).
 
-## Quality gates
+## How GenAI Is Used
 
-`npm run check` runs typecheck, ESLint (strict type-checked, jsx-a11y, complexity ≤ 10, ≤ 40 lines per logic function, no magic numbers in logic files; components and cited data tables are exempt), unused-code detection (knip), duplicate-code detection (0 allowed), Prettier and Vitest with coverage thresholds. `npm run e2e` runs Playwright on desktop and Pixel 7 with axe checks in both themes. CI runs both on every push. See [TESTING.md](TESTING.md), [SECURITY.md](SECURITY.md) and [ACCESSIBILITY.md](ACCESSIBILITY.md). Sample households for evaluators: [SAMPLE_INPUTS.md](SAMPLE_INPUTS.md).
+- **Model:** Gemini (`gemini-3.5-flash-lite` on the free AI Studio tier, set by `GEMINI_MODEL`) through `@google/genai` ([server/ai/model.ts](server/ai/model.ts)).
+- **Four tasks:** explain the plan; answer questions with **function calling** over `air_now`, `forecast_window`, `member_plan` and `inhaled_dose`, each running our own code ([server/ai/tools.ts](server/ai/tools.ts)); word the society notice around a decision code already made; read a PM2.5 number from a photo with **structured JSON output** validated by zod, which the user confirms.
+- **Prompts:** fixed system prompts ([server/ai/prompts.ts](server/ai/prompts.ts)) plus a user message of code-computed facts, with clock times added so the model never converts hours.
+- **Guardrails:** the number guard ([server/ai/guard.ts](server/ai/guard.ts)) rejects a reply with any digit-written number not in the facts or tool results (Devanagari digits included) or any number spelled as a word in English, Hindi or Marathi. Names and labels are passed as JSON data, never as instructions. Rate limit 12 AI calls a minute per client; 25-second timeout.
+- **Fallback:** a rejected, failed or slow reply is replaced by the built-in rules text, labelled "Built-in explanation". The app works fully with no key.
+- **Building it:** the tools, prompt evolution and who did what are in [docs/build-log.md](docs/build-log.md).
+
+## Quality, Security, Efficiency, Testing, Accessibility
+
+| Pillar        | In short                                                                                                                                               | Details                              |
+| ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------ |
+| Code quality  | Strict TypeScript, ESLint strict-type-checked + jsx-a11y, complexity ≤ 10, ≤ 40-line logic functions, ≤ 200-line files, 0 duplicates, 0 unused exports | [CODE_QUALITY.md](CODE_QUALITY.md)   |
+| Security      | Strict CSP, HSTS, same-origin writes, zod on every input and upstream response, rate and body limits, secrets server-side only, non-root container     | [SECURITY.md](SECURITY.md)           |
+| Efficiency    | Stale-while-failing caches with request de-duplication, precompressed assets, immutable caching, bundle budget in CI, location rounded for cache hits  | [EFFICIENCY.md](EFFICIENCY.md)       |
+| Testing       | Vitest across engine, server, AI, state and UI with a 100% coverage gate; Playwright on desktop and Pixel 7; no test touches the network               | [TESTING.md](TESTING.md)             |
+| Accessibility | WCAG 2.1 AA: axe 0 in both themes on every tab, WAI-ARIA tabs, skip link, `lang` on Hindi and Marathi replies, 44 px targets, reduced motion           | [ACCESSIBILITY.md](ACCESSIBILITY.md) |
+
+`npm run check` runs typecheck, lint, unused-code and duplicate detection, Prettier and the coverage-gated tests; `npm run e2e` runs the browser suite. CI runs both, plus the bundle budget and a production dependency audit, on every push.
+
+## Assumptions Made
+
+- The nearest CPCB station within 25 km represents the household's outdoor air; beyond that the modelled value is used and labelled.
+- The forecast keeps the CAMS model's shape and takes its level from the station; it is labelled "estimated trend", not a local forecast.
+- Breathing rates are age-group means (US EPA EFH 2011): child 3–6 years, adult 21–31, older adult 61–71.
+- Indoor air uses a single well-mixed room model with mid-range literature values (penetration 0.8, air changes by window habit, settling 0.2/h).
+- In-vehicle exposure shares and CO₂ per passenger-km are mid-range literature values; real trips vary widely.
+- Masks are advised but never credited with a saving, because real-world fit varies too much.
+- The GRAP stage shown is the level the AQI matches, not an official order.
+- The rules fallback is English only; Hindi and Marathi need Gemini.
+- CPCB stations sometimes stop reporting for hours; the app says how old a reading is once it is over 2 hours.
 
 ## Privacy
 
 No accounts. The family, routines and weekly ledger stay in the browser. The server gets the chosen coordinates for the air lookup and rounds them to about 1 km. Pressing an AI button sends first names, routine labels, the area name and the air numbers (never coordinates) to Google Gemini; the app says so next to each button.
 
-## Data sources and licences
+## Data Sources and Licences
 
-- **CPCB real-time AQI** via [data.gov.in](https://data.gov.in) (Government Open Data Licence – India). The feed publishes pollutant sub-indices; we convert them back to concentrations with the CPCB breakpoints for the dose maths.
+- **CPCB real-time AQI** via [data.gov.in](https://data.gov.in) (Government Open Data Licence – India).
 - **Open-Meteo** air quality (CAMS), weather and geocoding (CC BY 4.0).
 - NAQI breakpoints: CPCB, 2014. Breathing rates: US EPA Exposure Factors Handbook 2011, Table 6-2. Purifier sizing: AHAM. Mosquito-coil evidence: Liu et al., 2003 (EHP).
 
-## Known gaps (honest list)
-
-- The forecast is the CAMS model scaled to the station's current reading: it keeps the model's shape, not a local forecast. It is labelled "estimated trend".
-- In-vehicle exposure shares and CO₂ factors are mid-range literature values; real trips vary widely.
-- Masks are advised but never credited with a dose saving, because real-world fit varies too much.
-- The GRAP stage shown is the level the AQI matches, not an official order.
-- The rules fallback is English-only; Hindi and Marathi need Gemini.
-- CPCB stations sometimes stop reporting for hours; the app shows how old the reading is when it is over 2 hours.
-
-Advice is general guidance, not medical advice. MIT licence.
+Advice is general guidance, not medical advice. Code under the [MIT licence](LICENSE).
