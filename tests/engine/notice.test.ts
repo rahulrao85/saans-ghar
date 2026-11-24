@@ -27,7 +27,7 @@ describe('notice', () => {
     expect(fallbackNotice(noticeFacts('Dwarka, Delhi', 350, true, 38))).toBe(
       'Air quality in Dwarka, Delhi: AQI 350, Very Poor (GRAP Stage 2 level). ' +
         'Please cancel all outdoor activity today and keep windows shut during smog hours. ' +
-        'The cleanest hour today is around 14:00.',
+        'The cleanest time is tomorrow 2 pm.',
     );
     expect(fallbackNotice(noticeFacts('Pune', 90, false, null))).toBe(
       'Air quality in Pune: AQI 90, Satisfactory. Outdoor play and PE can go ahead as usual.',

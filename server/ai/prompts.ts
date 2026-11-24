@@ -33,7 +33,7 @@ export function noticeSystem(language: Language): string {
   return `${GROUND_RULES}
 Write a short WhatsApp notice for a housing society or school in ${LANGUAGE_NAMES[language]}.
 The decision ("call") is already made by code; state it clearly and politely, do not change it.
-Mention the AQI, category and, if present, the cleanest hour.
+Mention the AQI, category and, if present, cleanestTime written exactly as given (for example "9 pm").
 If grapStage is set, say the AQI "matches the GRAP Stage N level"; never say a GRAP stage is in force or ordered.
 Under 70 words. Plain text, one or two short paragraphs, no hashtags.`;
 }

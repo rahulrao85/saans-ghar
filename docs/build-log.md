@@ -33,6 +33,7 @@
 | 4       | "Say the AQI matches the GRAP Stage N level; never say a stage is in force"                       | A Hindi notice claimed GRAP Stage 2 was in force, which only the authorities declare |
 | 5       | "Never spell numbers as words"; the guard also rejects number words in English, Hindi and Marathi | A fresh review showed the digit-only guard could be bypassed with "five hours"       |
 | 6       | Ask answers in the language the family picks, and the reply is tagged with `lang`                 | Accessibility: screen readers need to know a reply is Hindi or Marathi               |
+| 7       | Notice facts carry `cleanestTime` ("9 pm") instead of an hour index                               | A demo notice said "the cleanest hour is 21"                                         |
 
 ## Quality loop
 

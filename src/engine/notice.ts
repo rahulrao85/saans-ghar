@@ -1,7 +1,7 @@
 import { bandFor } from './aqi';
-import { HOURS_PER_DAY } from './data/day';
 import { GRAP_FROM, type GrapStage } from './data/grap';
 import type { AqiCategory } from './data/naqi';
+import { hourLabel } from './format';
 
 /** What a school or housing society should do about outdoor activity. */
 export type OutdoorCall = 'normal' | 'reduce' | 'move-indoors' | 'cancel';
@@ -14,7 +14,8 @@ export interface NoticeFacts {
   readonly call: OutdoorCall;
   /** Only set for Delhi-NCR. */
   readonly grapStage: GrapStage | null;
-  readonly cleanestHour: number | null;
+  /** Clock time such as "9 pm", so the wording never shows a 24-hour index. */
+  readonly cleanestTime: string | null;
 }
 
 /** Outdoor-activity call per NAQI category, cautious because children are involved. */
@@ -52,7 +53,7 @@ export function noticeFacts(
     category: bandFor(aqi).category,
     call: outdoorCall(aqi),
     grapStage: inDelhiNcr ? grapStageFor(aqi) : null,
-    cleanestHour,
+    cleanestTime: cleanestHour === null ? null : hourLabel(cleanestHour),
   };
 }
 
@@ -66,9 +67,6 @@ const CALL_TEXT: Readonly<Record<OutdoorCall, string>> = {
 /** Plain notice text, used when the AI is unavailable and as its factual base. */
 export function fallbackNotice(f: NoticeFacts): string {
   const stage = f.grapStage ? ` (GRAP Stage ${f.grapStage} level)` : '';
-  const hour =
-    f.cleanestHour === null
-      ? ''
-      : ` The cleanest hour today is around ${f.cleanestHour % HOURS_PER_DAY}:00.`;
+  const hour = f.cleanestTime === null ? '' : ` The cleanest time is ${f.cleanestTime}.`;
   return `Air quality in ${f.place}: AQI ${f.aqi}, ${f.category}${stage}. ${CALL_TEXT[f.call]}${hour}`;
 }
