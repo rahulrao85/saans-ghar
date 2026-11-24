@@ -1,7 +1,7 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 
-/** Relative base so the app works at a sub-path (e.g. rahulrao.in/saans/) or a domain root. */
+/** Relative base so the app works at a sub-path (e.g. example.com/app/) or a domain root. */
 export default defineConfig({
   base: './',
   plugins: [react()],

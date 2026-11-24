@@ -35,13 +35,13 @@ export function clientIp(c: Context): string {
   return last !== undefined && last !== '' ? last : 'local';
 }
 
-interface Window {
+interface RateWindow {
   count: number;
   start: number;
 }
 
 /** Drop windows that have ended, so the map cannot grow without bound. */
-function prune(hits: Map<string, Window>, t: number, windowMs: number): void {
+function prune(hits: Map<string, RateWindow>, t: number, windowMs: number): void {
   for (const [ip, w] of hits) if (t - w.start >= windowMs) hits.delete(ip);
 }
 
@@ -50,7 +50,7 @@ function prune(hits: Map<string, Window>, t: number, windowMs: number): void {
  * @param limit requests allowed per window
  */
 export function rateLimit(limit: number, windowMs: number, now = Date.now): MiddlewareHandler {
-  const hits = new Map<string, Window>();
+  const hits = new Map<string, RateWindow>();
   let lastPrune = now();
   return async (c, next) => {
     const t = now();
