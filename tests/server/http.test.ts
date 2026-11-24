@@ -7,8 +7,8 @@ describe('clientIp', () => {
   const ip = async (headers: Record<string, string>): Promise<string> =>
     (await app.request('/', { headers })).text();
 
-  it('uses the first x-forwarded-for entry', async () => {
-    expect(await ip({ 'x-forwarded-for': ' 1.2.3.4 , 5.6.7.8' })).toBe('1.2.3.4');
+  it('uses the last x-forwarded-for entry (the one the proxy added)', async () => {
+    expect(await ip({ 'x-forwarded-for': ' 1.2.3.4 , 5.6.7.8 ' })).toBe('5.6.7.8');
   });
   it('falls back to local without the header or with an empty one', async () => {
     expect(await ip({})).toBe('local');

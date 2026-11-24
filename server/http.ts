@@ -19,14 +19,30 @@ export const securityHeaders: MiddlewareHandler = secureHeaders({
     frameAncestors: ["'none'"],
   },
   strictTransportSecurity: 'max-age=31536000; includeSubDomains',
+  xFrameOptions: 'DENY',
   referrerPolicy: 'strict-origin-when-cross-origin',
   permissionsPolicy: { camera: ['self'], geolocation: ['self'], microphone: [] },
 });
 
-/** Client address as seen by the proxy (Caddy sets X-Forwarded-For). */
+/**
+ * Client address. In production the app sits behind Caddy, which sets
+ * X-Forwarded-For itself; the last entry is the one the nearest proxy added,
+ * so a client cannot spoof its way past the rate limit by sending its own.
+ */
 export function clientIp(c: Context): string {
-  const forwarded = c.req.header('x-forwarded-for')?.split(',')[0]?.trim();
-  return forwarded !== undefined && forwarded !== '' ? forwarded : 'local';
+  const hops = c.req.header('x-forwarded-for')?.split(',') ?? [];
+  const last = hops[hops.length - 1]?.trim();
+  return last !== undefined && last !== '' ? last : 'local';
+}
+
+interface Window {
+  count: number;
+  start: number;
+}
+
+/** Drop windows that have ended, so the map cannot grow without bound. */
+function prune(hits: Map<string, Window>, t: number, windowMs: number): void {
+  for (const [ip, w] of hits) if (t - w.start >= windowMs) hits.delete(ip);
 }
 
 /**
@@ -34,10 +50,15 @@ export function clientIp(c: Context): string {
  * @param limit requests allowed per window
  */
 export function rateLimit(limit: number, windowMs: number, now = Date.now): MiddlewareHandler {
-  const hits = new Map<string, { count: number; start: number }>();
+  const hits = new Map<string, Window>();
+  let lastPrune = now();
   return async (c, next) => {
-    const ip = clientIp(c);
     const t = now();
+    if (t - lastPrune >= windowMs) {
+      prune(hits, t, windowMs);
+      lastPrune = t;
+    }
+    const ip = clientIp(c);
     const entry = hits.get(ip);
     const current =
       entry === undefined || t - entry.start >= windowMs ? { count: 0, start: t } : entry;
