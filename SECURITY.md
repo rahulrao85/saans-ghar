@@ -3,7 +3,7 @@
 ## What the app protects
 
 - **Secrets** stay on the server: `GEMINI_API_KEY` and `DATA_GOV_API_KEY` are read from the environment and never sent to the browser or written to logs. `.env` is git-ignored; `.env.example` lists the names only.
-- **No accounts, no personal data on the server.** The family and the weekly ledger live in the browser's localStorage. The server receives the chosen coordinates and rounds them to about 1 km before using them (`server/air.ts`, `coarse`). AI requests carry first names, routine labels, the area name and air numbers, never coordinates; the UI says so next to each AI button.
+- **No accounts, no personal data on the server.** The family and the weekly ledger live in the browser's localStorage. A device location is rounded to about 1 km in the browser before it is stored or sent, and the server rounds every point again before using it (`coarse` in `src/engine/geoTypes.ts`). AI requests carry first names, routine labels, the area name and air numbers, never coordinates; the UI says so next to each AI button.
 - **Photos** are downscaled and re-encoded in the browser (dropping EXIF such as GPS), sent once for reading, and never stored.
 
 ## Controls

@@ -148,7 +148,7 @@ Without `DATA_GOV_API_KEY` the app uses the Open-Meteo model and says so. Withou
 
 ## Privacy
 
-No accounts. The family, routines and weekly ledger stay in the browser. The server gets the chosen coordinates for the air lookup and rounds them to about 1 km. Pressing an AI button sends first names, routine labels, the area name and the air numbers (never coordinates) to Google Gemini; the app says so next to each button.
+No accounts. The family, routines and weekly ledger stay in the browser. A device location is rounded to about 1 km in the browser before it is saved or sent, and the server rounds every point the same way. Pressing an AI button sends first names, routine labels, the area name and the air numbers (never coordinates) to Google Gemini; the app says so next to each button.
 
 ## Data Sources and Licences
 

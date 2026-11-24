@@ -61,14 +61,14 @@ describe('PlacePicker', () => {
     expect(screen.getByRole('button', { name: 'Search' })).toBeEnabled();
   });
 
-  it('uses the device location', async () => {
+  it('uses the device location, rounded to about 1 km', async () => {
     const get = stubGeolocation((ok) => {
-      ok({ coords: { latitude: 19.1, longitude: 72.9 } } as GeolocationPosition);
+      ok({ coords: { latitude: 19.12345, longitude: 72.98765 } } as GeolocationPosition);
     });
     const onPlace = vi.fn();
     render(<PlacePicker onPlace={onPlace} onDemo={vi.fn()} />);
     await userEvent.click(screen.getByRole('button', { name: 'Use my location' }));
-    expect(onPlace).toHaveBeenCalledWith({ label: 'My location', lat: 19.1, lon: 72.9 });
+    expect(onPlace).toHaveBeenCalledWith({ label: 'My location', lat: 19.12, lon: 72.99 });
     expect(get).toHaveBeenCalledOnce();
   });
 

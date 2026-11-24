@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { AirService, MAX_STATION_KM, coarse } from '../../server/air';
+import { AirService, MAX_STATION_KM } from '../../server/air';
+import { coarse } from '../../src/engine/geoTypes';
 import { istHour } from '../../src/engine/geoTypes';
 import { airBody, fakeFetch, page, row, weatherBody, type Routes } from './fixtures';
 

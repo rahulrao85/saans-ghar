@@ -1,5 +1,6 @@
 import { useState, type SyntheticEvent } from 'react';
 import { findPlaces, messageOf } from '../api';
+import { coarse } from '../engine/geoTypes';
 import type { PlacesData } from '../schemas/air';
 import { DEMOS } from '../state/demo';
 import type { Household, Place } from '../state/household';
@@ -65,7 +66,8 @@ export function PlacePicker({ onPlace, onDemo }: Props) {
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         setStatus({ kind: 'idle' });
-        onPlace({ label: 'My location', lat: pos.coords.latitude, lon: pos.coords.longitude });
+        const { lat, lon } = coarse({ lat: pos.coords.latitude, lon: pos.coords.longitude });
+        onPlace({ label: 'My location', lat, lon });
       },
       () => {
         setStatus({ kind: 'error', message: 'Location is off. Search for your area instead.' });

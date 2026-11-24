@@ -73,10 +73,11 @@ export function fakeFetch(routes: Routes): { fetchJson: FetchJson; urls: string[
   const fetchJson: FetchJson = (url) => {
     urls.push(url);
     const pick = (): (() => unknown) | undefined => {
-      if (url.includes('data.gov.in')) return routes.cpcb;
-      if (url.includes('geocoding-api')) return routes.geocode;
-      if (url.includes('air-quality-api')) return routes.air;
-      if (url.includes('api.open-meteo.com')) return routes.weather;
+      const host = new URL(url).hostname;
+      if (host === 'api.data.gov.in') return routes.cpcb;
+      if (host === 'geocoding-api.open-meteo.com') return routes.geocode;
+      if (host === 'air-quality-api.open-meteo.com') return routes.air;
+      if (host === 'api.open-meteo.com') return routes.weather;
       return undefined;
     };
     const handler = pick();

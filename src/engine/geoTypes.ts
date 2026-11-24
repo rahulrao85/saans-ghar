@@ -4,6 +4,17 @@ export interface LatLon {
   readonly lon: number;
 }
 
+/** Round coordinates to ~1 km before storing, caching or sending them anywhere. */
+const COORD_SCALE = 100;
+
+/** Round a point to about 1 km: enough for the nearest station, too coarse to find a home. */
+export function coarse(p: LatLon): LatLon {
+  return {
+    lat: Math.round(p.lat * COORD_SCALE) / COORD_SCALE,
+    lon: Math.round(p.lon * COORD_SCALE) / COORD_SCALE,
+  };
+}
+
 /** UTC+05:30. */
 const IST_OFFSET_MS = 19_800_000;
 const MS_PER_HOUR = 3_600_000;
