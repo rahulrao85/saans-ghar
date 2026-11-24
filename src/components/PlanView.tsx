@@ -2,6 +2,10 @@ import { hourLabel, micrograms } from '../engine/format';
 import type { DayPart } from '../engine/data/day';
 import type { RoutineAdvice, Verdict } from '../engine/plan';
 import { weatherReason } from '../engine/why';
+import type { AgeGroup } from '../engine/data/breathing';
+import { MODES } from '../engine/data/travel';
+import { greenerSwitch } from '../engine/greener';
+import type { Routine } from '../engine/household';
 import type { AirReportData } from '../schemas/air';
 import type { MemberData } from '../state/household';
 
@@ -83,7 +87,29 @@ function AdviceCard({ a, members, report }: { a: RoutineAdvice } & Omit<Props, '
           <span className="muted">No change needed.</span>
         )}
       </p>
+      <GreenerLine routine={routine} group={member.group} pm25={report.pm25} />
     </li>
+  );
+}
+
+/** The low-emission alternative for a trip, when one also means breathing less. */
+function GreenerLine({
+  routine,
+  group,
+  pm25,
+}: {
+  routine: Routine;
+  group: AgeGroup;
+  pm25: number | null;
+}) {
+  const better = pm25 === null ? null : greenerSwitch(routine, pm25, group);
+  if (better === null) return null;
+  return (
+    <p className="inset">
+      <strong>Low-emission option: {MODES[better.mode].label}.</strong> About{' '}
+      {Math.abs(better.co2Change).toLocaleString('en-IN')} g less CO₂ per trip
+      {better.doseChange < 0 && `, and ~${Math.abs(better.doseChange)} µg less PM2.5 breathed`}.
+    </p>
   );
 }
 
