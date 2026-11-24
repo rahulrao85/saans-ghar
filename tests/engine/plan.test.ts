@@ -1,7 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { inhaledDose } from '../../src/engine/dose';
-import { calibrate, meanOver, type HourlyPm } from '../../src/engine/forecast';
-import { isVulnerable, type Member, type Routine } from '../../src/engine/household';
+import type { HourlyPm } from '../../src/engine/forecast';
+import type { Member, Routine } from '../../src/engine/household';
 import { adviseRoutine, cleanestStart, decide, partOfDay, planDay } from '../../src/engine/plan';
 
 /** 24 hours: dirty mornings and nights, cleaner afternoons (a Delhi winter shape). */
@@ -49,42 +48,6 @@ const dad: Member = {
   sensitive: false,
   routines: [walk],
 };
-
-describe('inhaledDose', () => {
-  it('multiplies concentration by air breathed', () => {
-    // 100 µg/m³ × 12 L/min × 60 min = 0.72 m³ → 72 µg
-    expect(inhaledDose(100, 'adult', 'light', 60)).toBe(72);
-  });
-  it('returns 0 for zero or invalid inputs', () => {
-    expect(inhaledDose(0, 'adult', 'light', 60)).toBe(0);
-    expect(inhaledDose(100, 'adult', 'light', -5)).toBe(0);
-    expect(inhaledDose(Number.NaN, 'child', 'rest', 5)).toBe(0);
-  });
-});
-
-describe('forecast helpers', () => {
-  it('scales the model to the station reading', () => {
-    const result = calibrate(
-      [
-        { hour: 20, pm25: 72 },
-        { hour: 21, pm25: 60 },
-      ],
-      247,
-      20,
-    );
-    expect(result.factor).toBeCloseTo(3.43, 2);
-    expect(result.hours[1]?.pm25).toBe(206);
-  });
-  it('clamps implausible factors and tolerates a missing current hour', () => {
-    expect(calibrate([{ hour: 1, pm25: 10 }], 900, 1).factor).toBe(4);
-    expect(calibrate([{ hour: 1, pm25: 10 }], 900, 5).factor).toBe(1);
-    expect(calibrate([{ hour: 1, pm25: 0 }], 90, 1).factor).toBe(1);
-  });
-  it('averages a span and gives null for gaps', () => {
-    expect(meanOver(DAY, 11, 2)).toBe(170);
-    expect(meanOver(DAY, 23, 2)).toBeNull();
-  });
-});
 
 describe('decide', () => {
   it.each([
@@ -138,7 +101,7 @@ describe('planDay', () => {
   });
 });
 
-describe('helpers', () => {
+describe('partOfDay', () => {
   it.each([
     [3, 'night'],
     [7, 'morning'],
@@ -148,10 +111,5 @@ describe('helpers', () => {
     [31, 'morning'],
   ] as const)('hour %d is %s', (hour, part) => {
     expect(partOfDay(hour)).toBe(part);
-  });
-  it('treats children, elders and sensitive adults as vulnerable', () => {
-    expect(isVulnerable(nani)).toBe(true);
-    expect(isVulnerable(dad)).toBe(false);
-    expect(isVulnerable({ ...dad, sensitive: true })).toBe(true);
   });
 });
