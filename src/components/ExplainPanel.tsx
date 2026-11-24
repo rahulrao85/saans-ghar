@@ -1,29 +1,21 @@
 import { useState } from 'react';
 import { explain } from '../api';
 import { rulesExplain } from '../engine/explain';
-import type { AiText, Language, PlanFacts } from '../schemas/facts';
+import type { Language, PlanFacts } from '../schemas/facts';
+import { AiPrivacyNote, ReplyText, SourceBadge, type Reply } from './AiReply';
 import { LanguageSelect } from './LanguageSelect';
-
-/** Badge saying whether Gemini wrote the text or the built-in rules did. */
-export function SourceBadge({ source }: { readonly source: AiText['source'] }) {
-  return (
-    <span className="tag tag-accent">
-      {source === 'gemini' ? 'Worded by Gemini · numbers checked' : 'Built-in explanation'}
-    </span>
-  );
-}
 
 /** "Explain my plan" in English, Hindi or Marathi; falls back to the rules text offline. */
 export function ExplainPanel({ facts }: { readonly facts: PlanFacts }) {
   const [language, setLanguage] = useState<Language>('en');
-  const [result, setResult] = useState<AiText | null>(null);
+  const [result, setResult] = useState<Reply | null>(null);
   const [busy, setBusy] = useState(false);
   const run = async () => {
     setBusy(true);
     try {
-      setResult(await explain(facts, language));
+      setResult({ ...(await explain(facts, language)), language });
     } catch {
-      setResult({ text: rulesExplain(facts), source: 'rules' });
+      setResult({ text: rulesExplain(facts), source: 'rules', language });
     } finally {
       setBusy(false);
     }
@@ -46,10 +38,11 @@ export function ExplainPanel({ facts }: { readonly facts: PlanFacts }) {
         {result !== null && (
           <div className="inset stack">
             <SourceBadge source={result.source} />
-            <p className="prose">{result.text}</p>
+            <ReplyText reply={result} />
           </div>
         )}
       </div>
+      <AiPrivacyNote />
     </section>
   );
 }

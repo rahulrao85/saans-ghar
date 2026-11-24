@@ -1,12 +1,13 @@
 import { useState, type SyntheticEvent } from 'react';
 import { ask } from '../api';
 import { rulesAnswer } from '../engine/answer';
-import type { AiText, PlanFacts } from '../schemas/facts';
-import { SourceBadge } from './ExplainPanel';
+import type { AiText, Language, PlanFacts } from '../schemas/facts';
+import { AiPrivacyNote, ReplyText, SourceBadge, type Reply } from './AiReply';
+import { LanguageSelect } from './LanguageSelect';
 
 interface Turn {
   readonly question: string;
-  readonly answer: AiText;
+  readonly answer: Reply;
 }
 
 /** Ask about the plan; Gemini answers by calling our own tools, the rules answer offline. */
@@ -14,6 +15,7 @@ export function AskView({ facts }: { readonly facts: PlanFacts }) {
   const [question, setQuestion] = useState('');
   const [turns, setTurns] = useState<Turn[]>([]);
   const [busy, setBusy] = useState(false);
+  const [language, setLanguage] = useState<Language>('en');
   const first = facts.items[0]?.member;
   const suggestions = [
     'When is the best time to go out today?',
@@ -29,11 +31,11 @@ export function AskView({ facts }: { readonly facts: PlanFacts }) {
     setQuestion('');
     let answer: AiText;
     try {
-      answer = await ask(facts, text);
+      answer = await ask(facts, text, language);
     } catch {
       answer = { text: rulesAnswer(text, facts), source: 'rules' };
     }
-    setTurns((t) => [...t, { question: text, answer }]);
+    setTurns((t) => [...t, { question: text, answer: { ...answer, language } }]);
     setBusy(false);
   };
   const submit = (e: SyntheticEvent) => {
@@ -44,6 +46,7 @@ export function AskView({ facts }: { readonly facts: PlanFacts }) {
   return (
     <section className="card stack" aria-labelledby="ask-h">
       <h3 id="ask-h">Ask about your plan</h3>
+      <LanguageSelect id="ask-lang" value={language} onChange={setLanguage} />
       <div className="chips">
         {suggestions.map((s) => (
           <button
@@ -63,7 +66,7 @@ export function AskView({ facts }: { readonly facts: PlanFacts }) {
             <p className="bubble bubble-user">{t.question}</p>
             <div className="bubble bubble-bot stack">
               <SourceBadge source={t.answer.source} />
-              <p>{t.answer.text}</p>
+              <ReplyText reply={t.answer} />
             </div>
           </div>
         ))}
@@ -71,7 +74,7 @@ export function AskView({ facts }: { readonly facts: PlanFacts }) {
       </div>
       <form className="row" onSubmit={submit}>
         <div className="field">
-          <label htmlFor="ask-q">Your question (any language)</label>
+          <label htmlFor="ask-q">Your question</label>
           <input
             id="ask-q"
             type="text"
@@ -90,6 +93,7 @@ export function AskView({ facts }: { readonly facts: PlanFacts }) {
         Every number in an answer comes from our calculations; replies with any other number are
         replaced by the built-in answer.
       </p>
+      <AiPrivacyNote />
     </section>
   );
 }

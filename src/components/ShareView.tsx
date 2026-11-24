@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { notice } from '../api';
 import { fallbackNotice, noticeFacts, type OutdoorCall } from '../engine/notice';
-import type { AiText, Language } from '../schemas/facts';
-import { SourceBadge } from './ExplainPanel';
+import type { Language } from '../schemas/facts';
+import { AiPrivacyNote, SourceBadge, replyLang, type Reply } from './AiReply';
 import { LanguageSelect } from './LanguageSelect';
 
 const CALL_LABEL: Readonly<Record<OutdoorCall, string>> = {
@@ -22,7 +22,7 @@ interface Props {
 /** A notice for the society or school WhatsApp group; code makes the call, Gemini words it. */
 export function ShareView({ place, aqi, delhiNcr, cleanestHour }: Props) {
   const [language, setLanguage] = useState<Language>('en');
-  const [result, setResult] = useState<AiText | null>(null);
+  const [result, setResult] = useState<Reply | null>(null);
   const [busy, setBusy] = useState(false);
   const [copied, setCopied] = useState(false);
   const facts = noticeFacts(place, aqi, delhiNcr, cleanestHour);
@@ -31,9 +31,9 @@ export function ShareView({ place, aqi, delhiNcr, cleanestHour }: Props) {
     setBusy(true);
     setCopied(false);
     try {
-      setResult(await notice({ place, aqi, delhiNcr, cleanestHour, language }));
+      setResult({ ...(await notice({ place, aqi, delhiNcr, cleanestHour, language })), language });
     } catch {
-      setResult({ text: fallbackNotice(facts), source: 'rules' });
+      setResult({ text: fallbackNotice(facts), source: 'rules', language });
     } finally {
       setBusy(false);
     }
@@ -76,7 +76,7 @@ export function ShareView({ place, aqi, delhiNcr, cleanestHour }: Props) {
             <label htmlFor="notice-text" className="sr-only">
               Notice text
             </label>
-            <textarea id="notice-text" readOnly value={result.text} />
+            <textarea id="notice-text" readOnly value={result.text} lang={replyLang(result)} />
             <div className="actions">
               <button
                 type="button"
@@ -103,6 +103,7 @@ export function ShareView({ place, aqi, delhiNcr, cleanestHour }: Props) {
           not an official order.
         </p>
       )}
+      <AiPrivacyNote />
     </section>
   );
 }

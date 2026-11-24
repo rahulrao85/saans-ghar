@@ -3,7 +3,8 @@ import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { AskView } from '../../src/components/AskView';
-import { ExplainPanel, SourceBadge } from '../../src/components/ExplainPanel';
+import { SourceBadge } from '../../src/components/AiReply';
+import { ExplainPanel } from '../../src/components/ExplainPanel';
 import { bodyOf, json, planFacts, stubFetch } from '../fixtures/ui';
 
 afterEach(() => {
@@ -60,11 +61,11 @@ describe('ExplainPanel', () => {
 });
 
 describe('AskView', () => {
-  const question = () => screen.getByLabelText('Your question (any language)');
+  const question = () => screen.getByLabelText('Your question');
 
   it('offers a member-specific chip only when the plan has one', () => {
     const { unmount } = render(<AskView facts={planFacts()} />);
-    expect(screen.getByRole('button', { name: 'What should Aai do today?' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'What should Aaji do today?' })).toBeInTheDocument();
     unmount();
     render(<AskView facts={planFacts({ items: [] })} />);
     expect(screen.queryByRole('button', { name: /What should/ })).not.toBeInTheDocument();
@@ -78,6 +79,17 @@ describe('AskView', () => {
     expect(await screen.findByText('Go at 2 pm.')).toBeInTheDocument();
     expect(screen.getByText('Do masks help?', { selector: 'p' })).toBeInTheDocument();
     expect(bodyOf(fake, 'api/ai/ask')).toMatchObject({ question: 'Do masks help?' });
+  });
+
+  it('asks in the chosen language and tags the reply with it', async () => {
+    const fake = stubFetch({
+      'api/ai/ask': () => json({ text: 'दोपहर 2 बजे जाएँ।', source: 'gemini' }),
+    });
+    render(<AskView facts={planFacts()} />);
+    await userEvent.selectOptions(screen.getByLabelText('Language'), 'hi');
+    await userEvent.click(screen.getByRole('button', { name: 'Do masks help?' }));
+    expect(await screen.findByText('दोपहर 2 बजे जाएँ।')).toHaveAttribute('lang', 'hi');
+    expect(bodyOf(fake, 'api/ai/ask')).toMatchObject({ language: 'hi' });
   });
 
   it('sends a typed question, clears the box and shows the busy line', async () => {
@@ -113,10 +125,10 @@ describe('AskView', () => {
   it('falls back to the rules answer when the server fails', async () => {
     stubFetch({});
     render(<AskView facts={planFacts()} />);
-    await userEvent.type(question(), 'What about Aai?');
+    await userEvent.type(question(), 'What about Aaji?');
     await userEvent.click(screen.getByRole('button', { name: 'Ask' }));
     expect(
-      await screen.findByText(/Aai, Evening walk: move it from 6 pm to 2 pm/),
+      await screen.findByText(/Aaji, Evening walk: move it from 6 pm to 2 pm/),
     ).toBeInTheDocument();
     expect(screen.getByText('Built-in explanation')).toBeInTheDocument();
   });

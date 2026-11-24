@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { ask, explain, findPlaces, getAir, notice, readPhoto } from '../../src/api';
+import { ask, explain, findPlaces, getAir, messageOf, notice, readPhoto } from '../../src/api';
 import { airReport } from '../fixtures/air';
 import { json, parseBody, planFacts, stubFetch } from '../fixtures/ui';
 
@@ -26,7 +26,7 @@ describe('api', () => {
     const fake = stubFetch({ 'api/ai/': () => json(reply) });
     const facts = planFacts();
     await expect(explain(facts, 'hi')).resolves.toEqual(reply);
-    await expect(ask(facts, 'why?')).resolves.toEqual(reply);
+    await expect(ask(facts, 'why?', 'en')).resolves.toEqual(reply);
     await expect(
       notice({ place: 'X', aqi: 10, delhiNcr: false, cleanestHour: null, language: 'mr' }),
     ).resolves.toEqual(reply);
@@ -60,5 +60,12 @@ describe('api', () => {
   it('throws on a schema mismatch', async () => {
     stubFetch({ 'api/air': () => json({ source: 'cpcb' }) });
     await expect(getAir({ lat: 1, lon: 2 })).rejects.toThrow();
+  });
+});
+
+describe('messageOf', () => {
+  it('uses an Error message and a default for anything else', () => {
+    expect(messageOf(new Error('boom'))).toBe('boom');
+    expect(messageOf('nope')).toBe('Something went wrong. Try again.');
   });
 });
