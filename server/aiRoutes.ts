@@ -24,6 +24,7 @@ const MAX_AQI = 500;
 const explainBody = z.object({ facts: planFactsSchema, language: languageSchema });
 const askBody = z.object({
   facts: planFactsSchema,
+  language: languageSchema.default('en'),
   question: z.string().trim().min(1).max(QUESTION_MAX),
 });
 const noticeBody = z.object({
@@ -81,7 +82,7 @@ export function registerAi(app: Hono, model: AiModel | null): void {
   app.post('/api/ai/ask', limit(JSON_LIMIT_BYTES), async (c) => {
     const b = askBody.safeParse(await jsonBody(c));
     if (!b.success) return c.json(BAD, STATUS.badRequest);
-    return c.json(await askPlan(model, b.data.question, b.data.facts));
+    return c.json(await askPlan(model, b.data.question, b.data.facts, b.data.language));
   });
   app.post('/api/ai/notice', limit(JSON_LIMIT_BYTES), async (c) => {
     const b = noticeBody.safeParse(await jsonBody(c));

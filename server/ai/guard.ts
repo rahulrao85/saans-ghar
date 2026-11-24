@@ -39,9 +39,27 @@ export function allowedNumbers(...sources: readonly unknown[]): Set<number> {
 }
 
 /**
+ * Numbers spelled as words (2 and up) in English, Hindi and Marathi. A model
+ * could dodge the digit check by writing "five hours" or "पाँच घंटे", so any
+ * of these fails the guard: facts are always written in digits. "One"/"एक",
+ * Hindi "दो" and Marathi "सहा" are left out: they are also everyday words
+ * ("one of", "a", "give", the start of "सहायता").
+ */
+const EN_NUMBER_WORDS =
+  /\b(?:two(?!-wheeler)|three|four(?!-wheeler)|five|six|seven|eight|nine|ten|eleven|twelve|fifteen|twenty|thirty|forty|fifty|sixty|seventy|eighty|ninety|hundred|thousand|dozen)\b/i;
+/** Whole Devanagari words only, so "विचार" (thought) does not match "चार" (four). */
+const HI_MR_NUMBER_WORDS =
+  /(?<![ऀ-ॿ])(?:तीन|चार|पाँच|पांच|छह|सात|आठ|नौ|दस|बीस|पचास|सौ|हज़ार|हजार|दोन|पाच|नऊ|दहा|वीस|पन्नास|शंभर)(?![ऀ-ॿ])/u;
+
+/**
  * True when every number in the reply is one code computed. A reply that
- * invents a figure (an AQI, a dose, an hour) is thrown away.
+ * invents a figure (an AQI, a dose, an hour), or spells a number out in
+ * words, is thrown away.
  */
 export function isGrounded(text: string, allowed: ReadonlySet<number>): boolean {
-  return numbersIn(text).every((n) => allowed.has(n));
+  return (
+    !EN_NUMBER_WORDS.test(text) &&
+    !HI_MR_NUMBER_WORDS.test(text) &&
+    numbersIn(text).every((n) => allowed.has(n))
+  );
 }

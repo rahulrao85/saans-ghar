@@ -37,7 +37,7 @@ describe('runTool', () => {
   });
 
   it('member_plan matches names case-insensitively and adds clock times', () => {
-    const result = runTool({ name: 'member_plan', args: { name: 'AAI' } }, FACTS);
+    const result = runTool({ name: 'member_plan', args: { name: 'AAJI' } }, FACTS);
     expect(result).toEqual({
       items: [{ ...FACTS.items[0], usualTime: '6 pm', bestTime: '2 pm' }],
     });

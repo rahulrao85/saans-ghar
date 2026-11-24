@@ -13,7 +13,7 @@ import {
 import { log } from '../log';
 import { allowedNumbers, isGrounded } from './guard';
 import type { AiModel } from './model';
-import { ASK_SYSTEM, READ_SYSTEM, explainSystem, noticeSystem } from './prompts';
+import { READ_SYSTEM, askSystem, explainSystem, noticeSystem } from './prompts';
 import { TOOL_DECLARATIONS, runTool } from './tools';
 
 /** A tool loop that has not answered after this many rounds is cut off. */
@@ -100,6 +100,7 @@ export function askPlan(
   model: AiModel | null,
   question: string,
   facts: PlanFacts,
+  language: Language = 'en',
 ): Promise<AiText> {
   const fallback = rulesAnswer(question, facts);
   return attempt(model, fallback, async (m) => {
@@ -107,7 +108,7 @@ export function askPlan(
     const results: unknown[] = [facts];
     for (let round = 0; round < MAX_TOOL_ROUNDS; round++) {
       const reply = await m.generate({
-        system: ASK_SYSTEM,
+        system: askSystem(language),
         contents,
         tools: TOOL_DECLARATIONS,
       });

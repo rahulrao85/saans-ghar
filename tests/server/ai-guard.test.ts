@@ -58,3 +58,22 @@ describe('isGrounded', () => {
     expect(isGrounded('AQI 163 today', allowed)).toBe(false);
   });
 });
+
+describe('isGrounded: numbers spelled as words', () => {
+  const allowed = allowedNumbers({ aqi: 162 });
+  it('rejects English number words', () => {
+    expect(isGrounded('Walk for five hours.', allowed)).toBe(false);
+    expect(isGrounded('Twenty minutes is enough.', allowed)).toBe(false);
+  });
+  it('rejects Hindi and Marathi number words as whole words only', () => {
+    expect(isGrounded('पाँच घंटे बाहर न जाएँ', allowed)).toBe(false);
+    expect(isGrounded('दोन तास थांबा', allowed)).toBe(false);
+    expect(isGrounded('ध्यान से विचार करें, AQI 162 है', allowed)).toBe(true);
+  });
+  it('keeps everyday words and mode names', () => {
+    expect(
+      isGrounded('One of the cleanest hours; take the two-wheeler or a four-wheeler.', allowed),
+    ).toBe(true);
+    expect(isGrounded('दवाई दो और सहायता लें', allowed)).toBe(true);
+  });
+});
