@@ -23,9 +23,11 @@
     "test": "vitest run",
     "coverage": "vitest run --coverage",
     "e2e": "playwright test",
-    "check": "npm run typecheck && npm run lint && npm run lint:dupes && npm run format:check && npm run coverage"
+    "check": "npm run typecheck && npm run lint && npm run lint:unused && npm run lint:dupes && npm run format:check && npm run coverage",
+    "budget": "node scripts/bundle-budget.mjs"
   },
   "dependencies": {
+    "@fontsource/space-grotesk": "^5.3.0",
     "@google/genai": "^3.6.1",
     "@hono/node-server": "^2.1.11",
     "hono": "^4.13.21",
@@ -45,7 +47,6 @@
     "@types/react-dom": "^19.3.0",
     "@vitejs/plugin-react": "^6.3.0",
     "@vitest/coverage-v8": "^5.1.1",
-    "axe-core": "^4.14.1",
     "esbuild": "^0.28.2",
     "eslint": "^9.39.5",
     "eslint-plugin-jsx-a11y": "^6.10.2",

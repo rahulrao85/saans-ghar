@@ -5,7 +5,17 @@ import jsxA11y from 'eslint-plugin-jsx-a11y';
 import reactHooks from 'eslint-plugin-react-hooks';
 
 export default tseslint.config(
-  { ignores: ['dist', 'coverage', 'test-results', 'playwright-report', 'node_modules', '.vitest'] },
+  {
+    ignores: [
+      'dist',
+      'coverage',
+      'test-results',
+      'playwright-report',
+      'node_modules',
+      '.vitest',
+      'scripts/oneoff',
+    ],
+  },
   js.configs.recommended,
   {
     files: ['**/*.{ts,tsx}'],
@@ -39,8 +49,15 @@ export default tseslint.config(
   },
   {
     // Reference tables: every number here is a cited constant, named by its row.
-    files: ['src/engine/data/**/*.ts', 'src/**/*.tsx'],
+    files: ['src/engine/data/**/*.ts', 'src/state/demo.ts', 'src/**/*.tsx'],
     rules: { '@typescript-eslint/no-magic-numbers': 'off' },
+  },
+  {
+    // Components are mostly markup; the 40-line rule stays for logic files.
+    files: ['src/**/*.tsx'],
+    rules: {
+      'max-lines-per-function': ['error', { max: 90, skipBlankLines: true, skipComments: true }],
+    },
   },
   {
     files: ['src/**/*.tsx'],
@@ -63,5 +80,9 @@ export default tseslint.config(
   {
     files: ['**/*.{js,mjs}'],
     languageOptions: { globals: globals.node },
+  },
+  {
+    files: ['public/**/*.js'],
+    languageOptions: { globals: globals.browser, sourceType: 'script' },
   },
 );
