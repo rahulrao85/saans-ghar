@@ -19,7 +19,9 @@ export const PENETRATION = 0.8;
 export const DEPOSITION_PER_HOUR = 0.2;
 /** Room height in metres (9 ft). */
 export const ROOM_HEIGHT_M = 2.74;
+/** Square metres in a square foot. */
 export const SQ_M_PER_SQ_FT = 0.0929;
+/** Cubic metres per hour in one cubic foot per minute. */
 export const CUBIC_M_PER_HOUR_PER_CFM = 1.699;
 
 /**
@@ -28,6 +30,7 @@ export const CUBIC_M_PER_HOUR_PER_CFM = 1.699;
  * https://ahamverifide.org/ahams-air-filtration-standards/
  */
 export const AHAM_NORMAL_SHARE = 2 / 3;
+/** AHAM smog-day sizing: smoke CADR (cfm) at least equal to the floor area (sq ft). */
 export const AHAM_SMOKE_SHARE = 1;
 
 /** A common indoor source of particles and a cleaner swap. */

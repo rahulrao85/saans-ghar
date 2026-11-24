@@ -1,5 +1,6 @@
 import type { LatLon } from '../src/engine/geoTypes';
 
+/** A point on Earth in decimal degrees (shared with the client). */
 export type { LatLon };
 
 const EARTH_RADIUS_KM = 6371;

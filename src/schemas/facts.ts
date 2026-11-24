@@ -45,11 +45,14 @@ export const planFactsSchema = z.object({
   items: z.array(factItemSchema).max(MAX_ITEMS),
 });
 
+/** One plan item as the AI and the rules see it. */
 export type FactItem = z.infer<typeof factItemSchema>;
+/** Code-computed facts for the AI to word. */
 export type PlanFacts = z.infer<typeof planFactsSchema>;
 
 /** Languages the explanation and notice can be written in. */
 export const languageSchema = z.enum(['en', 'hi', 'mr']);
+/** A supported reply language. */
 export type Language = z.infer<typeof languageSchema>;
 
 /** What the AI read off a photo of an air monitor or purifier display. */
@@ -58,6 +61,7 @@ export const displayReadingSchema = z.object({
   pm25: z.number().min(0).max(MAX_PM).nullable(),
   device: z.enum(['monitor', 'purifier', 'other']),
 });
+/** A validated photo reading. */
 export type DisplayReading = z.infer<typeof displayReadingSchema>;
 
 /** Every AI-backed answer says where it came from. */

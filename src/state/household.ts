@@ -38,9 +38,13 @@ export const householdSchema = z.object({
   place: placeSchema.nullable(),
   members: z.array(memberSchema).max(MAX_MEMBERS),
 });
+/** The saved household: place and members. */
 export type Household = z.infer<typeof householdSchema>;
+/** A chosen place with its label. */
 export type Place = z.infer<typeof placeSchema>;
+/** One saved family member. */
 export type MemberData = z.infer<typeof memberSchema>;
+/** One saved routine. */
 export type RoutineData = z.infer<typeof routineSchema>;
 
 const ledgerSchema = z.array(

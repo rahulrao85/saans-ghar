@@ -1,7 +1,9 @@
 /** Part of the day, for the morning / afternoon / evening plan view. */
 export type DayPart = 'morning' | 'afternoon' | 'evening' | 'night';
 
+/** Hours in a day. */
 export const HOURS_PER_DAY = 24;
+/** Minutes in an hour. */
 export const MINUTES_PER_HOUR = 60;
 
 /** Start hour of each part of the day, in order. */

@@ -3,6 +3,7 @@ import { useRef, type KeyboardEvent } from 'react';
 /** The app's sections. */
 export type TabId = 'today' | 'family' | 'home' | 'travel' | 'share' | 'ask';
 
+/** The tabs, in display order. */
 export const TABS: readonly { id: TabId; label: string }[] = [
   { id: 'today', label: 'Today' },
   { id: 'family', label: 'Family' },

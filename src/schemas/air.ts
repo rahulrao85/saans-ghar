@@ -35,6 +35,7 @@ export const airReportSchema = z.object({
   weather: z.array(z.object({ hour: z.number(), mixingHeightM: z.number(), windKmh: z.number() })),
   stale: z.boolean(),
 });
+/** A validated /api/air response. */
 export type AirReportData = z.infer<typeof airReportSchema>;
 
 /** The /api/places response. */
@@ -44,4 +45,5 @@ export const placesSchema = z.object({
   ),
   places: z.array(z.object({ label: z.string(), lat: z.number(), lon: z.number() })),
 });
+/** A validated /api/places response. */
 export type PlacesData = z.infer<typeof placesSchema>;
