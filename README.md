@@ -16,17 +16,17 @@ Saans Ghar (Hindi: "breath home") turns the live CPCB reading at your nearest mo
 
 Every clause of the brief, where it shows up in the app, and the code and tests behind it. Full traceability: [PROBLEM_ALIGNMENT.md](PROBLEM_ALIGNMENT.md).
 
-| Brief clause                                    | What the app does                                                                                                                                   | Code                                                                  | Tests                                                                    |
-| ----------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------- | ------------------------------------------------------------------------ |
-| GenAI-powered assistant                         | Gemini explains the plan (English, Hindi, Marathi), answers questions with **function calling**, writes the society notice and reads monitor photos | `server/ai/*`, `server/aiRoutes.ts`                                   | `tests/server/ai-*.test.ts`, `tests/server/aiRoutes.test.ts`             |
-| families                                        | Members with age group (child, adult, older adult) and a sensitive flag; each gets their own advice and limits                                      | `src/engine/plan.ts`, `src/components/FamilyEditor.tsx`               | `tests/engine/plan.test.ts`, `tests/components/FamilyEditor.test.tsx`    |
-| communities                                     | Society / school notice: code makes the outdoor-play call (NAQI band, Delhi-NCR GRAP level); share to WhatsApp                                      | `src/engine/notice.ts`, `src/components/ShareView.tsx`                | `tests/engine/community.test.ts`, `tests/components/ShareView.test.tsx`  |
-| severe winter smog and urban air pollution      | Live CPCB station NAQI with station, distance and IST time; 24-hour PM2.5 trend; mixing-layer (inversion) reason on each moved routine              | `server/sources/cpcb.ts`, `server/air.ts`, `src/engine/why.ts`        | `tests/server/cpcb.test.ts`, `tests/engine/why.test.ts`                  |
-| low-emission daily routines                     | Each routine moves to its cleanest hour; trip routines also show their **low-emission option** (CO₂ saved per trip, without breathing more)         | `src/engine/plan.ts`, `src/engine/greener.ts`                         | `tests/engine/plan.test.ts`, `tests/engine/greener.test.ts`              |
-| indoor air quality hacks                        | Indoor estimate, purifier sizing (AHAM), best hour to air out, smoke-source swaps, photo reading of a monitor                                       | `src/engine/indoor.ts`, `src/components/HomeView.tsx`                 | `tests/engine/indoor.test.ts`, `tests/components/HomeView.test.tsx`      |
-| sustainable alternatives                        | Same trip by every mode: minutes, PM2.5 breathed and CO₂ emitted                                                                                    | `src/engine/switches.ts`, `src/components/TravelView.tsx`             | `tests/engine/community.test.ts`, `tests/components/TravelView.test.tsx` |
-| tailored to their location and lifestyle        | Any Indian place (CPCB station search, geocoding, device location); each member's own routines, times, effort and flexibility                       | `server/places.ts`, `src/state/household.ts`                          | `tests/server/places.test.ts`, `tests/state/household.test.ts`           |
-| clearly explaining the direct impact of choices | Every tip: index at usual vs advised hour, the weather reason, **µg of PM2.5 saved**; weekly total of planned savings                               | `src/engine/dose.ts`, `src/engine/explain.ts`, `src/engine/ledger.ts` | `tests/engine/explain.test.ts`, `tests/state/derive.test.ts`             |
+| Brief clause                                    | What the app does                                                                                                                                   | Code                                                                  | Tests                                                                   |
+| ----------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------- | ----------------------------------------------------------------------- |
+| GenAI-powered assistant                         | Gemini explains the plan (English, Hindi, Marathi), answers questions with **function calling**, writes the society notice and reads monitor photos | `server/ai/*`, `server/aiRoutes.ts`                                   | `tests/server/ai-*.test.ts`, `tests/server/aiRoutes.test.ts`            |
+| families                                        | Members with age group (child, adult, older adult) and a sensitive flag; each gets their own advice and limits                                      | `src/engine/plan.ts`, `src/components/FamilyEditor.tsx`               | `tests/engine/plan.test.ts`, `tests/components/FamilyEditor.test.tsx`   |
+| communities                                     | Society / school notice: code makes the outdoor-play call (NAQI band, Delhi-NCR GRAP level); share to WhatsApp                                      | `src/engine/notice.ts`, `src/components/ShareView.tsx`                | `tests/engine/notice.test.ts`, `tests/components/ShareView.test.tsx`    |
+| severe winter smog and urban air pollution      | Live CPCB station NAQI with station, distance and IST time; 24-hour PM2.5 trend; mixing-layer (inversion) reason on each moved routine              | `server/sources/cpcb.ts`, `server/air.ts`, `src/engine/why.ts`        | `tests/server/cpcb.test.ts`, `tests/engine/why.test.ts`                 |
+| low-emission daily routines                     | Each routine moves to its cleanest hour; trip routines also show their **low-emission option** (CO₂ saved per trip, without breathing more)         | `src/engine/plan.ts`, `src/engine/greener.ts`                         | `tests/engine/plan.test.ts`, `tests/engine/greener.test.ts`             |
+| indoor air quality hacks                        | Indoor estimate, purifier sizing (AHAM), best hour to air out, smoke-source swaps, photo reading of a monitor                                       | `src/engine/indoor.ts`, `src/components/HomeView.tsx`                 | `tests/engine/indoor.test.ts`, `tests/components/HomeView.test.tsx`     |
+| sustainable alternatives                        | Same trip by every mode: minutes, PM2.5 breathed and CO₂ emitted                                                                                    | `src/engine/switches.ts`, `src/components/TravelView.tsx`             | `tests/engine/switches.test.ts`, `tests/components/TravelView.test.tsx` |
+| tailored to their location and lifestyle        | Any Indian place (CPCB station search, geocoding, device location); each member's own routines, times, effort and flexibility                       | `server/places.ts`, `src/state/household.ts`                          | `tests/server/places.test.ts`, `tests/state/household.test.ts`          |
+| clearly explaining the direct impact of choices | Every tip: index at usual vs advised hour, the weather reason, **µg of PM2.5 saved**; weekly total of planned savings                               | `src/engine/dose.ts`, `src/engine/explain.ts`, `src/engine/ledger.ts` | `tests/engine/explain.test.ts`, `tests/state/derive.test.ts`            |
 
 ## Approach and Logic
 
@@ -99,17 +99,40 @@ Without `DATA_GOV_API_KEY` the app uses the Open-Meteo model and says so. Withou
 - **Fallback:** a rejected, failed or slow reply is replaced by the built-in rules text, labelled "Built-in explanation". The app works fully with no key.
 - **Building it:** the tools, prompt evolution and who did what are in [docs/build-log.md](docs/build-log.md).
 
-## Quality, Security, Efficiency, Testing, Accessibility
+## Code Quality
 
-| Pillar        | In short                                                                                                                                               | Details                              |
-| ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------ |
-| Code quality  | Strict TypeScript, ESLint strict-type-checked + jsx-a11y, complexity ≤ 10, ≤ 40-line logic functions, ≤ 200-line files, 0 duplicates, 0 unused exports | [CODE_QUALITY.md](CODE_QUALITY.md)   |
-| Security      | Strict CSP, HSTS, same-origin writes, zod on every input and upstream response, rate and body limits, secrets server-side only, non-root container     | [SECURITY.md](SECURITY.md)           |
-| Efficiency    | Stale-while-failing caches with request de-duplication, precompressed assets, immutable caching, bundle budget in CI, location rounded for cache hits  | [EFFICIENCY.md](EFFICIENCY.md)       |
-| Testing       | Vitest across engine, server, AI, state and UI with a 100% coverage gate; Playwright on desktop and Pixel 7; no test touches the network               | [TESTING.md](TESTING.md)             |
-| Accessibility | WCAG 2.1 AA: axe 0 in both themes on every tab, WAI-ARIA tabs, skip link, `lang` on Hindi and Marathi replies, 44 px targets, reduced motion           | [ACCESSIBILITY.md](ACCESSIBILITY.md) |
+- TypeScript `strict` with `noUncheckedIndexedAccess` and `exactOptionalPropertyTypes`; no `any`.
+- ESLint `strictTypeChecked` + jsx-a11y + react-hooks + jsdoc: complexity ≤ 10, nesting ≤ 3, ≤ 4 parameters, ≤ 200 lines per file, ≤ 40 lines per logic function, no magic numbers in logic files, a doc comment on every export.
+- Duplicate code threshold 0 (jscpd); no unused files, exports or dependencies (knip); one Prettier format.
+- A pure engine (`src/engine/`) with time passed in, adapters and AI behind injectable interfaces, and one composition root.
+- Small conventional commits. Details: [CODE_QUALITY.md](CODE_QUALITY.md).
 
-`npm run check` runs typecheck, lint, unused-code and duplicate detection, Prettier and the coverage-gated tests; `npm run e2e` runs the browser suite. CI runs both, plus the bundle budget and a production dependency audit, on every push.
+## Security
+
+- Strict Content Security Policy (`default-src 'self'`, no `unsafe-inline`), HSTS, `X-Frame-Options: DENY`, `nosniff`, strict referrer and permissions policy.
+- Every non-GET request must come from the same origin; every request body, query and upstream response is validated with zod.
+- Rate limits (60 a minute, 12 for AI) and body limits (8 KB, 32 KB for AI, 1 MB for photos); upstream timeouts.
+- API keys stay on the server; the container runs as a non-root user; CodeQL, dependency review and `npm audit` in CI; `/.well-known/security.txt`.
+- AI safety: facts passed as data, read-only tools, the number guard, user confirmation for photo readings. Details: [SECURITY.md](SECURITY.md).
+
+## Efficiency
+
+- One national CPCB download shared by every visitor (30-minute cache), stale-while-failing, with in-flight request de-duplication; forecasts cached for an hour per ~1 km point.
+- `Cache-Control` on lookups, `immutable` hashed assets, Brotli and gzip precompressed at build time.
+- Bundle budget enforced in CI (130 KB JavaScript, 8 KB CSS, gzip); one self-hosted font weight; only the open tab renders; photos shrunk on the device. Details: [EFFICIENCY.md](EFFICIENCY.md).
+
+## Testing
+
+- **397 Vitest tests in 50 files**, with a **100% gate on statements, branches, functions and lines** (as of 24-Nov-2026; `npm run coverage` prints the live figures).
+- One test file per engine module, plus server adapters with fake fetch, the AI layer with a fake model (guard, tool loop, fallbacks), state hooks and every component with Testing Library.
+- **16 Playwright tests** on desktop Chrome and a Pixel 7 against the production build with no API keys, including axe in both themes and no sideways scroll from 228 px to 768 px.
+- No test touches the network. Details: [TESTING.md](TESTING.md).
+
+## Accessibility
+
+- WCAG 2.1 AA: axe reports 0 violations in light and dark, on every tab, on desktop and phone.
+- WAI-ARIA tabs with arrow keys, a skip link, visible focus, `aria-live` for status and AI replies, and `lang` on Hindi and Marathi replies.
+- Colour is never the only signal (band names beside CPCB colours); text contrast ≥ 4.5:1; 44 px tap targets; reduced motion respected. Details: [ACCESSIBILITY.md](ACCESSIBILITY.md).
 
 ## Assumptions Made
 

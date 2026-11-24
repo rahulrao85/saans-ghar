@@ -39,7 +39,7 @@ A module may import its own layer or a lower one, never upwards.
 | No duplicated code (threshold 0)                                                          | `.jscpd.json`, `npm run lint:dupes`        |
 | No unused files, exports or dependencies                                                  | `knip.json`, `npm run lint:unused`         |
 | One format                                                                                | `.prettierrc.json`, `npm run format:check` |
-| JSDoc on every export                                                                     | review; every exported symbol has one      |
+| JSDoc on every exported function, type and constant                                       | `eslint-plugin-jsdoc` (`require-jsdoc`)    |
 | 100% statement, branch, function and line coverage                                        | `vitest.config.ts` thresholds              |
 | No generated output committed (`dist/`, `coverage/`, test results)                        | `.gitignore`                               |
 

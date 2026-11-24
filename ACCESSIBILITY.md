@@ -8,5 +8,5 @@ Target: WCAG 2.1 AA, checked automatically and by hand.
 - **Screen readers:** the AQI is announced as "AQI 162"; the forecast chart has a text list of every hour; status and AI replies use `aria-live`; tables become labelled cards on phones.
 - **Colour:** CPCB band colours always come with the band name, never colour alone. Text on band colours is chosen for at least 4.5:1. The design tokens' orange and blue were deepened where they fell below 4.5:1 at small sizes (`--accent-ink`, tag and hover colours in `src/styles/app.css`).
 - **Motion:** honours `prefers-reduced-motion`.
-- **Mobile:** 375 px with no horizontal scroll (tested), 44 px tap targets, `inputMode` numeric keypads.
+- **Mobile:** no horizontal scroll at 228 px (large-font phones), 320, 360, 390, 412, 430 and 768 px, in both themes, on every tab, checked in `e2e/app.spec.ts`; 44 px tap targets; `inputMode` numeric keypads.
 - **Language:** the page is `lang="en-IN"`; every Gemini reply carries `lang="hi"` or `lang="mr"` when written in Hindi or Marathi (built-in replies are English and tagged so).

@@ -10,7 +10,7 @@
 
 | Risk                   | Control                                                                                                                                                                                                                                  | Where                                                  |
 | ---------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------ |
-| Cross-site scripting   | Strict CSP: `default-src 'self'`, no inline scripts or styles; React escapes all text                                                                                                                                                    | `server/http.ts`                                       |
+| Cross-site scripting   | Strict CSP: `default-src 'self'`, no `unsafe-inline` for scripts or styles (the few dynamic styles, such as chart bar heights, are set through React's DOM style API, which the CSP allows); React escapes all text                      | `server/http.ts`                                       |
 | Clickjacking, sniffing | `frame-ancestors 'none'`, `X-Frame-Options: DENY`, `nosniff`, HSTS, strict referrer, permissions policy (camera and geolocation self-only)                                                                                               | `server/http.ts`                                       |
 | Cross-site writes      | Every non-GET request must have an `Origin` whose host matches `Host`; a malformed Origin is a 403                                                                                                                                       | `server/http.ts`                                       |
 | Abuse and cost         | Rate limits per client address (the last `X-Forwarded-For` hop, set by the Caddy proxy in production; expired windows are pruned): 60 requests/min, 12/min for AI routes; body limits 8 KB (API), 32 KB (AI), 1 MB (photo)               | `server/app.ts`, `server/aiRoutes.ts`                  |
@@ -20,6 +20,13 @@
 | Upstream outages       | Stale-while-failing cache; timeouts on every fetch                                                                                                                                                                                       | `server/cache.ts`, `server/fetchJson.ts`               |
 | Container              | Two-stage image, production dependencies only, runs as a non-root user                                                                                                                                                                   | `Dockerfile`                                           |
 
+## Supply chain
+
+- `npm audit --omit=dev --audit-level=high` runs in CI on every push.
+- CodeQL (security-extended, including ReDoS queries) analyses the code on every push (`.github/workflows/codeql.yml`).
+- Dependency review blocks pull requests that add a vulnerable or GPL-licensed dependency (`.github/workflows/dependency-review.yml`).
+- The lockfile is committed and the image installs with `npm ci`.
+
 ## Reporting
 
-Please report a vulnerability privately to the repository owner through GitHub rather than in a public issue.
+Please report a vulnerability privately through [GitHub security advisories](https://github.com/rahulrao85/saans-ghar/security/advisories/new) rather than in a public issue. The site publishes this at `/.well-known/security.txt`.

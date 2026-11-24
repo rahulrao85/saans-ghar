@@ -30,6 +30,6 @@ Fast on Indian mobile data, light on the free upstream APIs, and cheap to run (â
 
 ## Server
 
-- One Node process serves the API and the static app; the image is two-stage, production dependencies only, and runs within a 384 MB memory cap.
+- One Node process serves the API and the static app; the image is two-stage with production dependencies only (`Dockerfile`).
 - The engine is pure and synchronous; a full family plan is a few hundred arithmetic operations.
 - AI calls are rate-limited (12 a minute per client) and use the smallest free model that answers reliably within the timeout.
