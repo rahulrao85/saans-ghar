@@ -11,3 +11,5 @@ playwright-report/
 .vitest/
 *.tsbuildinfo
 report/
+scripts/oneoff/
+.claude/
