@@ -32,7 +32,7 @@ const LIMITS = {
 /** Shortened activities keep this share of the planned time. */
 const SHORTEN_SHARE = 0.5;
 /** Indoor PM2.5 as a share of outdoor with windows shut, no purifier (typical Indian home, approx.). */
-export const INDOOR_SHARE = 0.7;
+const INDOOR_SHARE = 0.7;
 
 /** Advice for every routine of every member, sorted by best hour. */
 export function planDay(members: readonly Member[], hours: readonly HourlyPm[]): RoutineAdvice[] {

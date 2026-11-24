@@ -16,7 +16,7 @@ export interface Routine {
   readonly latestHour: number;
   /** True for trips that cannot be skipped (school run, commute). */
   readonly required: boolean;
-  readonly mode?: TravelMode;
+  readonly mode?: TravelMode | undefined;
 }
 
 /** One person in the household. */

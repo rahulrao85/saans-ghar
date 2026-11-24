@@ -1,0 +1,83 @@
+import { z } from 'zod';
+import type { LedgerEntry } from '../engine/ledger';
+
+const MAX_NAME = 40;
+const MAX_MEMBERS = 10;
+const MAX_ROUTINES = 5;
+const LAST_HOUR = 23;
+const MAX_MINUTES = 600;
+
+const routineSchema = z.object({
+  id: z.string(),
+  label: z.string().max(MAX_NAME),
+  activity: z.enum(['rest', 'light', 'moderate', 'vigorous']),
+  minutes: z.number().int().min(1).max(MAX_MINUTES),
+  usualHour: z.number().int().min(0).max(LAST_HOUR),
+  earliestHour: z.number().int().min(0).max(LAST_HOUR),
+  latestHour: z.number().int().min(0).max(LAST_HOUR),
+  required: z.boolean(),
+  mode: z.enum(['walk', 'cycle', 'two-wheeler', 'auto', 'bus', 'metro', 'car']).optional(),
+});
+
+const memberSchema = z.object({
+  id: z.string(),
+  name: z.string().max(MAX_NAME),
+  group: z.enum(['child', 'adult', 'elder']),
+  sensitive: z.boolean(),
+  routines: z.array(routineSchema).max(MAX_ROUTINES),
+});
+
+const placeSchema = z.object({ label: z.string(), lat: z.number(), lon: z.number() });
+
+/** What the app remembers on this device. Nothing leaves it except the rounded location. */
+export const householdSchema = z.object({
+  place: placeSchema.nullable(),
+  members: z.array(memberSchema).max(MAX_MEMBERS),
+});
+export type Household = z.infer<typeof householdSchema>;
+export type Place = z.infer<typeof placeSchema>;
+export type MemberData = z.infer<typeof memberSchema>;
+export type RoutineData = z.infer<typeof routineSchema>;
+
+const ledgerSchema = z.array(
+  z.object({ date: z.string(), memberId: z.string(), saved: z.number().min(0) }),
+);
+
+const HOUSEHOLD_KEY = 'saans-ghar:household';
+const LEDGER_KEY = 'saans-ghar:ledger';
+
+/** Read and validate a stored value; anything missing or malformed gives the fallback. */
+function read<T>(key: string, schema: z.ZodType<T>, fallback: T): T {
+  try {
+    const raw = localStorage.getItem(key);
+    if (raw === null) return fallback;
+    const parsed = schema.safeParse(JSON.parse(raw));
+    return parsed.success ? parsed.data : fallback;
+  } catch {
+    return fallback;
+  }
+}
+
+function write(key: string, value: unknown): void {
+  try {
+    localStorage.setItem(key, JSON.stringify(value));
+  } catch {
+    // Private mode or full storage: the app still works for this visit.
+  }
+}
+
+export const EMPTY_HOUSEHOLD: Household = { place: null, members: [] };
+
+export const loadHousehold = (): Household => read(HOUSEHOLD_KEY, householdSchema, EMPTY_HOUSEHOLD);
+export const saveHousehold = (h: Household): void => {
+  write(HOUSEHOLD_KEY, h);
+};
+export const loadLedger = (): LedgerEntry[] => read(LEDGER_KEY, ledgerSchema, []);
+export const saveLedger = (entries: readonly LedgerEntry[]): void => {
+  write(LEDGER_KEY, entries);
+};
+
+/** A short random id for new members and routines. */
+export function newId(): string {
+  return crypto.randomUUID().slice(0, 'xxxxxxxx'.length);
+}
