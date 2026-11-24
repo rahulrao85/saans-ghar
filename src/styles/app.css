@@ -474,3 +474,18 @@ figure {
   font-size: var(--text-xs);
   color: var(--text-secondary);
 }
+
+/* Very narrow phones (or large system fonts, which Chrome treats as a narrow page). */
+@media (max-width: 360px) {
+  .shell {
+    padding-inline: var(--space-3);
+  }
+  .card {
+    padding: var(--space-4);
+  }
+  .aqi-value {
+    width: 88px;
+    height: 88px;
+    font-size: 1.9rem;
+  }
+}

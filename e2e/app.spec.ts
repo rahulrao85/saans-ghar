@@ -39,6 +39,7 @@ test('a demo family gets a sourced reading and a plan with savings', async ({ pa
   await openDemo(page);
   await expect(page.getByText('Source: CPCB')).toBeVisible();
   await expect(page.getByText(/Saves ~\d+ µg of PM2\.5 for Aaji/)).toBeVisible();
+  await expect(page.getByText(/Low-emission option: /).first()).toBeVisible();
   await axe(page);
   await noSideScroll(page);
 });
@@ -77,6 +78,24 @@ test('ask answers a question about the plan', async ({ page }) => {
   await page.getByRole('tab', { name: 'Ask' }).click();
   await page.getByRole('button', { name: 'Do masks help?' }).click();
   await expect(page.getByText(/well fitted: an N95/)).toBeVisible();
+});
+
+test('no sideways scroll from 228 px (large-font phones) to tablet, in both themes', async ({
+  page,
+}) => {
+  await openDemo(page);
+  for (const theme of ['light', 'dark']) {
+    await page.evaluate((t) => {
+      document.documentElement.dataset.theme = t;
+    }, theme);
+    for (const width of [228, 320, 360, 390, 412, 430, 768]) {
+      await page.setViewportSize({ width, height: 800 });
+      for (const name of ['Today', 'Family', 'Home air', 'Travel', 'Share', 'Ask']) {
+        await page.getByRole('tab', { name }).click();
+        await noSideScroll(page);
+      }
+    }
+  }
 });
 
 test('security headers are set', async ({ request }) => {
