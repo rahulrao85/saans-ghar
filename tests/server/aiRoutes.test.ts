@@ -79,6 +79,7 @@ describe('AI routes without a model', () => {
   it('explain answers from the rules', async () => {
     const res = await post(app, '/api/ai/explain', { facts: FACTS, language: 'en' });
     expect(res.status).toBe(200);
+    expect(res.headers.get('cache-control')).toBe('no-store');
     expect(await json(res)).toMatchObject({ source: 'rules' });
   });
 

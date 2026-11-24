@@ -28,6 +28,8 @@ const RATE_LIMIT = 60;
 const RATE_WINDOW_MS = 60_000;
 const QUERY_MAX = 60;
 const QUERY_MIN = 2;
+/** Station data refreshes every 30 min upstream; a browser may reuse a lookup for 5. */
+const CACHE_LOOKUPS = 'private, max-age=300';
 
 const pointQuery = z.object({
   lat: z.coerce.number().min(-LAT_MAX).max(LAT_MAX),
@@ -58,6 +60,7 @@ export function createApp(deps: AppDeps): Hono {
     if (!parsed.success)
       return c.json({ error: 'Type at least 2 letters of a place.' }, STATUS.badRequest);
     const { list } = await deps.air.allStations();
+    c.header('Cache-Control', CACHE_LOOKUPS);
     return c.json(await findPlaces(parsed.data.q, list, deps.fetchJson));
   });
 
@@ -66,6 +69,7 @@ export function createApp(deps: AppDeps): Hono {
     if (!parsed.success || !inIndia(parsed.data)) {
       return c.json({ error: 'Choose a place in India.' }, STATUS.badRequest);
     }
+    c.header('Cache-Control', CACHE_LOOKUPS);
     return c.json(await deps.air.report(parsed.data));
   });
 

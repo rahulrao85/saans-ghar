@@ -73,7 +73,10 @@ async function readRoute(c: Context, model: AiModel | null): Promise<Response> {
 
 /** AI routes. With no key (model null) every text route still answers, from the rules. */
 export function registerAi(app: Hono, model: AiModel | null): void {
-  app.use('/api/ai/*', rateLimit(AI_RATE_LIMIT, RATE_WINDOW_MS));
+  app.use('/api/ai/*', rateLimit(AI_RATE_LIMIT, RATE_WINDOW_MS), async (c, next) => {
+    await next();
+    c.header('Cache-Control', 'no-store');
+  });
   app.post('/api/ai/explain', limit(JSON_LIMIT_BYTES), async (c) => {
     const b = explainBody.safeParse(await jsonBody(c));
     if (!b.success) return c.json(BAD, STATUS.badRequest);

@@ -66,6 +66,7 @@ describe('createApp', () => {
     expect((await app.request('/api/air?lat=51.5&lon=-0.12')).status).toBe(400);
     const ok = await app.request('/api/air?lat=19.2321&lon=72.8645');
     expect(ok.status).toBe(200);
+    expect(ok.headers.get('cache-control')).toBe('private, max-age=300');
     const body = (await ok.json()) as Report;
     expect(body.source).toBe('cpcb');
     expect(body.station?.name).toBe('Borivali East, Mumbai - MPCB');
