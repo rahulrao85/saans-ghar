@@ -12,6 +12,8 @@ for (const [ext, limit] of Object.entries(budgets)) {
     .reduce((sum, f) => sum + gzipSync(readFileSync(join(dir, f))).length, 0);
   const ok = total <= limit;
   failed ||= !ok;
-  console.log(`${ok ? 'ok  ' : 'FAIL'} ${ext} ${(total / 1024).toFixed(1)} KB gzip (budget ${limit / 1024} KB)`);
+  console.log(
+    `${ok ? 'ok  ' : 'FAIL'} ${ext} ${(total / 1024).toFixed(1)} KB gzip (budget ${limit / 1024} KB)`,
+  );
 }
 if (failed) process.exit(1);

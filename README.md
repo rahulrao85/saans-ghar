@@ -21,7 +21,7 @@ Saans Ghar (Hindi: "breath home") turns the live CPCB reading at your nearest mo
 
 ## Responsible AI: the number guard
 
-The model never produces a figure. Code computes the facts; the prompt says to use only those; then `server/ai/guard.ts` extracts every number in the reply (Devanagari digits included) and **rejects the reply if any number is not in the facts or tool results**. A rejected or failed reply falls back to the built-in rules text, labelled "Built-in explanation". The whole app works with **no Gemini key at all**.
+The model never produces a figure. Code computes the facts; the prompt says to use only those; then `server/ai/guard.ts` extracts every number written in digits (Devanagari digits included) and **rejects the reply if any of them is not in the facts or tool results**, or if it spells a number out in words (English, Hindi or Marathi). A rejected or failed reply falls back to the built-in rules text, labelled "Built-in explanation". The whole app works with **no Gemini key at all**.
 
 ## Architecture
 
@@ -67,7 +67,11 @@ Without `DATA_GOV_API_KEY` the app uses the Open-Meteo model and says so. Withou
 
 ## Quality gates
 
-`npm run check` runs typecheck, ESLint (strict type-checked, jsx-a11y, complexity ≤ 10, ≤ 40 lines per logic function, no magic numbers), duplicate-code detection (0 allowed), Prettier and Vitest with coverage thresholds. `npm run e2e` runs Playwright on desktop and Pixel 7 with axe checks in both themes. CI runs both on every push. See [TESTING.md](TESTING.md), [SECURITY.md](SECURITY.md) and [ACCESSIBILITY.md](ACCESSIBILITY.md). Sample households for evaluators: [SAMPLE_INPUTS.md](SAMPLE_INPUTS.md).
+`npm run check` runs typecheck, ESLint (strict type-checked, jsx-a11y, complexity ≤ 10, ≤ 40 lines per logic function, no magic numbers in logic files; components and cited data tables are exempt), unused-code detection (knip), duplicate-code detection (0 allowed), Prettier and Vitest with coverage thresholds. `npm run e2e` runs Playwright on desktop and Pixel 7 with axe checks in both themes. CI runs both on every push. See [TESTING.md](TESTING.md), [SECURITY.md](SECURITY.md) and [ACCESSIBILITY.md](ACCESSIBILITY.md). Sample households for evaluators: [SAMPLE_INPUTS.md](SAMPLE_INPUTS.md).
+
+## Privacy
+
+No accounts. The family, routines and weekly ledger stay in the browser. The server gets the chosen coordinates for the air lookup and rounds them to about 1 km. Pressing an AI button sends first names, routine labels, the area name and the air numbers (never coordinates) to Google Gemini; the app says so next to each button.
 
 ## Data sources and licences
 
