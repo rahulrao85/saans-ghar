@@ -1,5 +1,6 @@
 import { serve } from '@hono/node-server';
 import { serveStatic } from '@hono/node-server/serve-static';
+import { geminiModel } from './ai/model';
 import { AirService } from './air';
 import { createApp } from './app';
 import { fetchJson } from './fetchJson';
@@ -12,7 +13,12 @@ function env(name: string): string | undefined {
 }
 const dataGovKey = env('DATA_GOV_API_KEY');
 const air = new AirService({ fetchJson, dataGovKey, now: Date.now });
-const app = createApp({ air, fetchJson, aiEnabled: env('GEMINI_API_KEY') !== undefined });
+const geminiKey = env('GEMINI_API_KEY');
+/** A free-tier model; GEMINI_MODEL overrides it without a code change. */
+const modelName = env('GEMINI_MODEL') ?? 'gemini-3.5-flash-lite';
+const ai = geminiKey === undefined ? null : geminiModel(geminiKey, modelName);
+const app = createApp({ air, fetchJson, ai });
+if (ai === null) log('warn', 'GEMINI_API_KEY not set: AI routes answer from the rules');
 if (dataGovKey === undefined) log('warn', 'DATA_GOV_API_KEY not set: modelled air data only');
 
 const root = './dist/public';

@@ -6,4 +6,5 @@ export const STATUS = {
   tooMany: 429,
   serverError: 500,
   badGateway: 502,
+  unavailable: 503,
 } as const;

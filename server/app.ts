@@ -1,7 +1,10 @@
 import { Hono } from 'hono';
+import { except } from 'hono/combine';
 import { bodyLimit } from 'hono/body-limit';
 import { z } from 'zod';
+import type { AiModel } from './ai/model';
 import type { AirService } from './air';
+import { registerAi } from './aiRoutes';
 import { inIndia } from './geo';
 import { rateLimit, sameOrigin, securityHeaders } from './http';
 import { log } from './log';
@@ -13,7 +16,8 @@ import type { FetchJson } from './sources/cpcb';
 export interface AppDeps {
   readonly air: AirService;
   readonly fetchJson: FetchJson;
-  readonly aiEnabled: boolean;
+  /** Null when no Gemini key is set: every AI route then answers from the rules. */
+  readonly ai: AiModel | null;
 }
 
 /** 8 KB: every JSON request is small. */
@@ -36,17 +40,17 @@ export function createApp(deps: AppDeps): Hono {
   const app = new Hono();
   app.use('*', securityHeaders);
   app.use('/api/*', rateLimit(RATE_LIMIT, RATE_WINDOW_MS), sameOrigin);
-  app.use(
-    '/api/*',
-    bodyLimit({
-      maxSize: BODY_LIMIT_BYTES,
-      onError: (c) => c.json({ error: 'Request too large.' }, STATUS.tooLarge),
-    }),
-  );
+  const smallBodies = bodyLimit({
+    maxSize: BODY_LIMIT_BYTES,
+    onError: (c) => c.json({ error: 'Request too large.' }, STATUS.tooLarge),
+  });
+  // AI routes set their own, larger limits (plan facts, photos).
+  app.use('/api/*', except('/api/ai/*', smallBodies));
+  registerAi(app, deps.ai);
 
   app.get('/api/health', async (c) => {
     const { list, stale } = await deps.air.allStations();
-    return c.json({ ok: true, stations: list.length, stale, ai: deps.aiEnabled });
+    return c.json({ ok: true, stations: list.length, stale, ai: deps.ai !== null });
   });
 
   app.get('/api/places', async (c) => {
